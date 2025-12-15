@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Kotal Bank Statement</title>
+
+<style>
+
+body {
+  font-family: sans-serif;
+}
+  /* -------- WATERMARK -------- */
+.watermark {
+  position: absolute;
+  top: 350px;                     /* center-top position */
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0.08;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.watermark img {
+  width: 400px;
+  max-width: 80%;
+  height: auto;
+
+  /* 🔥 BLACK & WHITE FILTER */
+  filter: grayscale(100%) contrast(300%);
+}
+.statement {
+  position: relative;
+  z-index: 1;
+}
+  /* -------- HEADER -------- */
+  .header {
+    background: #f5d4d4;
+    padding: 5px;
+    border-radius: 2px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+   
+  }
+
+  .logo {
+    height: 45px;
+  }
+
+  .bank-name {
+    font-size: 22px;
+
+  }
+
+  /* -------- ACCOUNT DETAILS -------- */
+  .details {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px 20px;
+    font-size: 14px;
+    font-family: sans-serif;
+  }
+
+  .label {
+   
+  }
+
+  /* -------- TABLE -------- */
+ table, th, td {
+  border: none !important;
+}
+
+/* Table base */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+/* Header top & bottom lines ONLY */
+thead {
+  border-top: 2px solid #000;
+  border-bottom: 2px solid #000;
+}
+
+/* Header text */
+th {
+  padding: 8px 6px;
+  text-align: left;
+}
+
+/* Table body cells */
+td {
+  padding: 6px;
+  vertical-align: top;
+}
+
+td.left {
+  text-align: left;
+}
+.debit,
+.credit {
+  color: #000 !important;
+  font-weight: normal !important;
+}
+
+  /* -------- FOOTER -------- */
+ .footer {
+  margin-top: 25px;
+  font-size: 12px;
+  color: #444;
+  text-align: center;
+  line-height: 1.5;
+}
+
+ /* Date column - single line */
+/* Date */
+#txnTable th:nth-child(1),
+#txnTable td:nth-child(1) {
+  white-space: nowrap;
+  width: 90px;
+}
+
+/* Narration */
+#txnTable th:nth-child(2),
+#txnTable td.left {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 280px;
+}
+
+/* Cheque No */
+#txnTable th:nth-child(3),
+#txnTable td:nth-child(3) {
+  white-space: nowrap;
+  width: 90px;
+}
+
+/* Amount columns */
+#txnTable th:nth-child(4),
+#txnTable th:nth-child(5),
+#txnTable th:nth-child(6),
+#txnTable td:nth-child(4),
+#txnTable td:nth-child(5),
+#txnTable td:nth-child(6) {
+  white-space: nowrap;
+}
+
+#txnTable tbody tr td {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="statement">
+     
+  <div class="watermark">
+  <img src="{{watermarkurl}}" alt="Watermark" />
+  </div>
+
+  <!-- HEADER -->
+  <div class="header">
+    <img src="{{logoUrl}}" class="logo"/>
+    {{!-- <div class="bank-name">KOTAL BANK</div> --}}
+    <img src="{{logoUrl}}" class="logo" />
+  </div>
+
+  <!-- ACCOUNT DETAILS -->
+  <div class="details">
+    <div><span class="label">Account Name:</span> {{accountName}}</div>
+    <div><span class="label">Account No:</span> {{accountNumber}}</div>
+    <div><span class="label">Customer Name:</span> {{customerName}}</div>
+    <div><span class="label">IFSC:</span> {{ifsc}}</div>
+    <div><span class="label">Statement Period:</span> {{period}}</div>
+    <div><span class="label">Opening Balance:</span> {{openingBalance}}</div>
+  </div>
+
+  <!-- TRANSACTION TABLE -->
+  <table id="txnTable">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Narration</th>
+        <th>Cheq/Ref No</th>
+        <th>Withdrawal</th>
+        <th>Credit</th>
+        <th>Balance</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each transactions}}
+      <tr>
+        <td>{{date}}</td>
+        <td class="left">{{narration}}</td>
+        <td>{{chequeNo}}</td>
+        <td class="debit">{{withdrawal}}</td>
+        <td class="credit">{{credit}}</td>
+        <td class="balance"></td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+
+  
+
+<div class="footer">
+ <strong> Any discrepancy in the statement should be brought to the notice of
+  Kotak Mahindra Bank Ltd. within one month from date of statement.</strong>
+  <br>
+  <br>
+
+  <strong>End of Statement</strong>
+  <br>
+   <br>
+  <strong>This is system generated report and does not require signature &amp; stamp</strong>
+</div>
+</div>
+
+<script>
+  let balance = parseFloat({{openingBalance}}) || 0;
+
+  document.querySelectorAll("#txnTable tbody tr").forEach(row => {
+    const debit =
+      parseFloat(row.children[3].innerText.replace(/[₹,-]/g, "")) || 0;
+
+    const credit =
+      parseFloat(row.children[4].innerText.replace(/[₹,-]/g, "")) || 0;
+
+    balance = balance - debit + credit;
+
+    row.querySelector(".balance").innerText = balance.toLocaleString("en-IN", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  });
+</script>
+
+
+</body>
+</html>
