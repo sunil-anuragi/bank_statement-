@@ -132,47 +132,44 @@
       </form>
     </div>
 
-   <script>
-  function getFormData() {
-    return new FormData(document.getElementById("statementForm"));
-  }
+    <script>
+      function getFormData() {
+        const form = document.getElementById("statementForm");
+        const formData = new FormData(form);
+        return formData;
+      }
 
-  function previewPDF() {
-    const formData = getFormData();
+      function previewPDF() {
+        const formData = getFormData();
 
-    fetch("/.netlify/functions/statement?download=false", {
-      method: "POST",
-      body: formData,
-    })
-      .then(res => res.blob())
-      .then(blob => {
-        const url = URL.createObjectURL(blob);
-        window.open(url, "_blank"); // ✅ preview
-      })
-      .catch(err => console.error("Preview error:", err));
-  }
+        fetch("/api/statement?download=false", {
+          method: "POST",
+          body: formData,
+        })
+          .then((res) => res.blob())
+          .then((blob) => {
+            const url = URL.createObjectURL(blob);
+            window.open(url); // 👈 PREVIEW IN BROWSER
+          });
+      }
 
-  function downloadPDF() {
-    const formData = getFormData();
+      function downloadPDF() {
+        const formData = getFormData();
 
-    fetch("/.netlify/functions/statement?download=true", {
-      method: "POST",
-      body: formData,
-    })
-      .then(res => res.blob())
-      .then(blob => {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "statement.pdf";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
-      })
-      .catch(err => console.error("Download error:", err));
-  }
-</script>
-
+        fetch("/api/statement?download=true", {
+          method: "POST",
+          body: formData,
+        })
+          .then((res) => res.blob())
+          .then((blob) => {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "statement.pdf";
+            a.click();
+            URL.revokeObjectURL(url);
+          });
+      }
+    </script>
   </body>
 </html>
