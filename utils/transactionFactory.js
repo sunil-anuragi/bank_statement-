@@ -1,3 +1,5 @@
+const e = require("express");
+
 function formatUPITransfer({
   type = "CR",
   referenceNo,
@@ -60,18 +62,7 @@ function randomDateBetween(start, end) {
   const d = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
   return d.toISOString().slice(0, 10).split("-").reverse().join("-");
 }
-// function parseISODate(dateStr) {
-//   if (!dateStr) return null;
 
-//   // Expecting YYYY-MM-DD
-//   const [yyyy, mm, dd] = dateStr.split("-");
-
-//   if (!yyyy || !mm || !dd) return null;
-
-//   const d = new Date(`${yyyy}-${mm}-${dd}T00:00:00`);
-
-//   return isNaN(d.getTime()) ? null : d;
-// }
 
 function formatDateDMY(date) {
   const d = date instanceof Date ? date : new Date(date);
@@ -88,19 +79,23 @@ function formatDateDMY(date) {
 }
 
 
-function generateSequentialDates(start, end, count) {
-  const s = start instanceof Date ? start : new Date(start);
-  const e = end instanceof Date ? end : new Date(end);
+function generateStatementDates(startDate, endDate, count) {
+   const startTime = new Date(startDate).getTime();
+  const endTime = new Date(endDate).getTime();
 
-  const startTime = s.getTime();
-  const endTime = e.getTime();
+  if (count <= 1) {
+    return [new Date(startTime).toISOString().split("T")[0]];
+  }
 
   const gap = Math.floor((endTime - startTime) / (count - 1));
 
-  return Array.from({ length: count }, (_, i) =>
-    new Date(startTime + gap * i)
-  );
+  return Array.from({ length: count }, (_, i) => {
+    const date = new Date(startTime + gap * i);
+    return date.toISOString().split("T")[0]; // YYYY-MM-DD
+  });
+
 }
+
 
 function generateRandomTransaction(date) {
   const isUPI = Math.random() < 0.75; // 🔥 75% UPI
@@ -138,4 +133,4 @@ function generateRandomTransaction(date) {
 }
 
 
-module.exports = { generateNarration,parseDateDMY,generateRandomTransaction,generateSequentialDates};
+module.exports = { generateNarration,parseDateDMY,generateRandomTransaction,generateStatementDates};
