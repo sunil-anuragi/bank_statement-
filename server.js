@@ -11,11 +11,13 @@ const {
   generateStatementDates,
 } = require("./utils/transactionFactory");
 
-const { generateNarration } = require("./utils/transactionFactory");
+
 
 const app = express();
 const PORT = 3000;
 
+app.use(express.json());           
+app.use(express.urlencoded({ extended: true })); 
 // view engine
 app.set("view engine", "hbs");
 app.set("views", path.join(__dirname, "views"));
