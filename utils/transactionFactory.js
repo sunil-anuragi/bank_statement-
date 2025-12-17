@@ -245,10 +245,12 @@ function generateStatementDates(startDate, endDate, count) {
 function generateRandomTransaction(date) {
   const isUPI = Math.random() < 0.75; // 🔥 75% UPI
   const isCredit = Math.random() < 0.4; // 40% credit
+ 
 
   if (isUPI) {
     return {
       date: date,
+      
       narration: formatUPITransfer({
         type: isCredit ? "CR" : "DR",
         referenceNo: Math.floor(100000000000 + Math.random() * 900000000000),

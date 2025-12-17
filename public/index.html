@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Bank Statement</title>
+
+    <style>
+      * {
+        box-sizing: border-box;
+        font-family: "Segoe UI", Arial, sans-serif;
+      }
+
+      body {
+        margin: 0;
+        height: 100vh;
+        background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .card {
+        background: #fff;
+        width: 420px;
+        padding: 25px;
+        border-radius: 14px;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+      }
+
+      .title {
+        text-align: center;
+        font-size: 22px;
+        font-weight: 600;
+        color: #203a43;
+        margin-bottom: 20px;
+      }
+
+      .field {
+        margin-bottom: 12px;
+      }
+
+      .field label {
+        font-size: 12px;
+        font-weight: 600;
+        color: #555;
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      .field input {
+        width: 100%;
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 14px;
+        outline: none;
+      }
+
+      .buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+      }
+
+      .btn {
+        flex: 1;
+        padding: 12px;
+        background: linear-gradient(135deg, #2c5364, #203a43);
+        border: none;
+        color: #fff;
+        font-size: 14px;
+        font-weight: 600;
+        border-radius: 10px;
+        cursor: pointer;
+      }
+
+      .btn.secondary {
+        background: linear-gradient(135deg, #5f6368, #3c4043);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="title">Bank Statement</div>
+
+      <!-- SINGLE FORM -->
+      <form id="statementForm">
+        <div class="field">
+          <label>Account Name</label>
+          <input name="accountName" required />
+        </div>
+
+        <div class="field">
+          <label>Account Number</label>
+          <input name="accountNumber" required />
+        </div>
+
+        <div class="field">
+          <label>Customer Name</label>
+          <input name="customerName" required />
+        </div>
+
+        <div class="field">
+          <label>IFSC</label>
+          <input name="ifsc" required />
+        </div>
+
+        <div class="field">
+          <label>From Date</label>
+          <input type="date" name="fromDate" required />
+        </div>
+
+        <div class="field">
+          <label>To Date</label>
+          <input type="date" name="toDate" required />
+        </div>
+
+        <div class="field">
+          <label>Opening Balance</label>
+          <input type="number" name="salary" required />
+        </div>
+
+        <div class="buttons">
+          <button class="btn secondary" type="button" onclick="previewPDF()">
+            👁 Preview
+          </button>
+
+          <button class="btn" type="button" onclick="downloadPDF()">
+            ⬇ Download
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <script>
+      function getFormData() {
+        const form = document.getElementById("statementForm");
+        const formData = new FormData(form);
+        return formData;
+      }
+
+      function previewPDF() {
+        const formData = getFormData();
+
+        fetch("/api/statement?download=false", {
+          method: "POST",
+          body: formData,
+        })
+          .then((res) => res.blob())
+          .then((blob) => {
+            const url = URL.createObjectURL(blob);
+            window.open(url); // 👈 PREVIEW IN BROWSER
+          });
+      }
+
+      function downloadPDF() {
+        const formData = getFormData();
+
+        fetch("/api/statement?download=true", {
+          method: "POST",
+          body: formData,
+        })
+          .then((res) => res.blob())
+          .then((blob) => {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "statement.pdf";
+            a.click();
+            URL.revokeObjectURL(url);
+          });
+      }
+    </script>
+  </body>
+</html>
