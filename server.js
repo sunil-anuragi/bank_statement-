@@ -18,7 +18,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.get("/", (req, res) => {
   res.render("statement", {
     logoUrl: "/logo.png",
-    watermarkurl: "/watermark.png",
+    watermarkurl: "/background.png",
     accountName: "Savings Account",
     accountNumber: "1234567890",
     customerName: "Rahul Sharma",
@@ -40,7 +40,7 @@ app.get("/", (req, res) => {
         chequeNo: "482931",
         withdrawal: "",
         credit: "2500.00",
-      },
+      },     
       {
         date: "02-08-2025",
         narration: generateNarration({
