@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>SBI Account Statement</title>
+
+<style>
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    color: #000;
+    margin: 20px;
+  }
+
+ .header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  }
+
+  .sbi-logo {
+  height: 52px;   
+  width: auto;
+  }
+
+
+  .logo {
+    font-size: 22px;
+    font-weight: bold;
+    color: #1f4fa3;
+  }
+
+  .header-text {
+    margin-left: 10px;
+    font-size: 12px;
+    font-weight: bold;
+  }
+
+  .info {
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 15px;
+  }
+
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .info-left, .info-right {
+    width: 48%;
+  }
+
+  .info div {
+    margin-bottom: 2px;
+  }
+
+  .statement-title {
+    font-weight: 400; 
+    margin-bottom: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10.5px;
+  }
+
+  th, td {
+    border: 1px solid #000;
+    padding: 4px;
+  }
+
+  th {
+    text-align: center;
+    font-weight: bold;
+  }
+
+  td {
+    vertical-align: top;
+  }
+
+  .num {
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .center {
+    text-align: center;
+  }
+
+  .footer {
+    margin-top: 10px;
+    font-weight: 400; 
+    font-size: 12px;
+    color: #000;
+  }
+  .info-left {
+  width: 100%;
+}
+
+.info-item {
+  display: grid;
+  grid-template-columns: 230px auto; /* 👈 LABEL WIDTH FIXED */
+  column-gap: 2px;
+  margin-bottom: 10px;
+  
+}
+
+.label {
+  font-weight: 500; 
+  white-space: nowrap;
+  font-size: 12px;
+  margin-bottom: 3px;
+  color: #000;
+}
+
+.txn-table th,
+.txn-table td {
+  border: 1px solid #000;
+  padding: 2px 3px;               /* 👈 box size kam */
+  line-height: 1.2;               /* compact rows */
+  font-size: 12px;
+  vertical-align: top;
+}
+.col-date {
+  width: 50px;
+  white-space: nowrap;
+  text-align: start;
+}
+.col-desc {
+  text-align: start;
+  width: 60px;         
+  word-break: break-word;
+}
+.col-ref {
+  text-align: start;
+  width: 50px;
+  word-break: break-word;
+}
+.col-amt {
+  width: 120px;         
+  text-align: right;
+  white-space: nowrap;
+}
+
+.col-bal {
+  width: 140px;       
+  text-align: right;
+  white-space: nowrap;
+}
+
+.value {
+  white-space: pre-line;
+   font-size: 12px;
+}
+
+.value::before {
+  content: " : ";
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <img src="{{logoUrl}}" class="sbi-logo" alt="SBI Logo" />
+</div>
+
+
+<!-- ACCOUNT INFO -->
+<div class="info">
+  <div class="info-row">
+    <div class="info-left">
+
+      <div class="info-item">
+        <span class="label">Account Name</span>
+        <span class="value">{{accountName}}</span>
+      </div>
+
+      <div class="info-item">
+        <span class="label">Address</span>
+        <span class="value">{{address}}</span>
+      </div>
+
+      <div class="info-item">
+        <span class="label">Date</span>
+        <span class="value">{{date}}</span>
+      </div>
+
+      <div class="info-item">
+        <span class="label">Account Number</span>
+        <span class="value">{{accountNumber}}</span>
+      </div>
+
+      <div class="info-item">
+        <span class="label">Account Description</span>
+        <span class="value">{{accountDesc}}</span>
+      </div>
+
+      <div class="info-item">
+        <span class="label">Branch</span>
+        <span class="value">{{branch}}</span>
+      </div>
+
+      <div class="info-item">
+        <span class="label">Drawing Power</span>
+        <span class="value">{{drawingPower}}</span>
+      </div>
+
+      <div class="info-item">
+        <span class="label">Interest Rate (% p.a.)</span>
+        <span class="value">{{interestRate}}</span>
+      </div>
+
+      <div class="info-item">
+        <span class="label">MOD Balance</span>
+        <span class="value">{{modBalance}}</span>
+      </div>
+
+      <div class="info-item">
+        <span class="label">CIF No</span>
+        <span class="value">{{cif}}</span>
+      </div>
+
+      <div class="info-item">
+        <span class="label">CKYCR Number</span>
+        <span class="value">{{ckycr}}</span>
+      </div>
+
+      <div class="info-item">
+        <span class="label">IFS Code</span>
+        <span class="value">{{ifsc}}</span>
+      </div>
+
+      <div class="info-item">
+        <span class="label">MICR Code</span>
+        <span class="value">{{micr}}</span>
+      </div>
+
+      <div class="info-item">
+        <span class="label">Nomination Registered</span>
+        <span class="value">{{nomination}}</span>
+      </div>
+
+      <div class="info-item">
+        <span class="label">Balance as on {{fromDate}}</span>
+        <span class="value">{{openingBalance}}</span>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<div class="statement-title">
+  Account Statement from {{fromDate}} to {{toDate}}
+</div>
+
+<table class="txn-table">
+  <thead>
+    <tr>
+      <th class="col-date">Txn Date</th>
+      <th class="col-date">Value Date</th>
+      <th class="col-desc">Description</th>
+      <th class="col-ref">Ref No./Cheque No</th>
+      <th class="col-amt">Debit</th>
+      <th class="col-amt">Credit</th>
+      <th class="col-bal">Balance</th>
+    </tr>
+  </thead>
+
+
+  <tbody>
+    {{#each transactions}}
+    <tr>
+      <td class="center">{{date}}</td>
+      <td class="center">{{date}}</td>
+    {{#if debit}}
+    <td>
+      <div>TO TRANSFER-</div>
+      <div>{{narration}}</div>
+    </td>
+    {{else}}
+    <td>
+      <div>BY TRANSFER-</div>
+      <div>{{narration}}</div>
+    </td>
+    {{/if}}
+    {{#if debit}}
+    <td>
+      <div>TRANSFER TO</div>
+      <div>{{chequeNo}}</div>
+    </td>
+    {{else}}
+    <td>
+      <div>TRANSFER FROM</div>
+      <div>{{chequeNo}}</div>
+    </td>
+    {{/if}}
+      <td class="num">{{debit}}</td>
+      <td class="num">{{credit}}</td>
+      <td class="num">{{balance}}</td>
+    </tr>
+    {{/each}}
+  </tbody>
+</table>
+
+<div class="footer">
+ Please do not share your ATM, Debit/Credit card number, PIN (Personal Identification Number) and OTP (One Time Password) with anyone over mail, SMS, phone call or any other media. Bank never ask for such information.
+</div>
+<div class="footer">
+  * This is a computer generated statement and does not require signature.
+</div>
+
+</body>
+</html>

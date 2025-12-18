@@ -36,7 +36,7 @@ app.post("/api/statement",upload.none(), async (req, res) => {
     fromDate,
     toDate,
     salary,
-  } = req.body;
+  } = req.body|| {};
   console.log("BODY =>", req.body);
   const start = new Date(fromDate);
   const end = new Date(toDate);
@@ -113,8 +113,9 @@ app.post("/api/statement",upload.none(), async (req, res) => {
 });
 
 // HOME (Preview in browser)
+
 app.get("/", (req, res) => {
-  res.render("statement", {
+  res.render("kotak_statement", {
     logoUrl: "/logo.png",
     watermarkurl: "/background.png",
     accountName: "Savings Account",
@@ -123,7 +124,6 @@ app.get("/", (req, res) => {
     ifsc: "KOTL0001234",
     period: "01 Aug 2025 - 31 Aug 2025",
     openingBalance: 25000,
-
     transactions: [
       {
         date: "01-08-2025",
@@ -403,6 +403,70 @@ app.get("/", (req, res) => {
         credit: "",
       },
     ],
+  });
+});
+app.get("/sbi", (req, res) => {
+  res.render("sbi_statement", {
+    logoUrl: "/sbilogo.png",
+    accountName: "Rahul Sharma",
+    address:"A-18,SHREENAGAR SOC, DABHOLI SURAT-395004 Surat",
+    date:"24 Nov 2025",
+    accountNumber: "1234567890",
+    accountDesc:"REGULAR SB CHQ-INDIVIDUALS",
+    branch:"VED ROAD, SURAT",
+    drawingPower:"0.00",
+    interestRate:"2.5",
+    modBalance:"0.00",
+    cif:"85465824582",
+    ifsc:"SBIN0001234",
+    micr:"395448545",
+    nomination:"No",
+    openingBalance: "66.43",
+    fromDate:"1 Aug 2025",
+    toDate: "1 Jan 2026",
+
+    transactions: [
+      {
+        date: "01 Aug 2025",
+        narration: "UPI/CR/521379237095/SHAH/VIJ/KOTK/kumar45/UPI",
+        chequeNo: "4897747162096",
+        debit: "",
+        credit: "25000.00",
+        balance: "25000.00",
+      },
+      {
+        date: "12 Sep 2025",
+        narration: "UPI/DR/521379237095/SHAH/VIJ/KOTK/kumar45/UPI- Swiggy",
+        chequeNo: "4897747162094",
+        debit: "850.00",
+        credit: "",
+        balance: "23300.00",
+      },
+      {
+        date: "20 Nov 2025",
+        narration: "UPI/DR/521379237095/SHAH/VIJ/KOTK/kumar45/UPI- ZOMATO",
+        chequeNo: "4897747162001",
+        debit: "850.00",
+        credit: "",
+        balance: "22448.00",
+      },
+      {
+        date: "26 Dec 2025",
+        narration: "UPI/CR/521379237095/SHAH/VIJ/KOTK/kumar45/UPI- NEFT",
+        chequeNo: "48977471620545",
+        debit: "",
+        credit: "15000.00",
+        balance: "37448.00",
+      },
+      {
+        date: "01 Jan 2026",
+        narration: "UPI/CR/521379237095/SHAH/VIJ/KOTK/kumar45/UPI- NEFT",
+        chequeNo: "4897747161566",
+        debit: "",
+        credit: "10000.00",
+        balance: "47448.00",
+      }
+    ]
   });
 });
 
