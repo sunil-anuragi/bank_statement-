@@ -10,13 +10,16 @@ const {
   generateRandomTransaction,
   generateStatementDates,
 } = require("./utils/transactionFactory");
+const multer = require("multer");
 
+// memory storage (no files, only fields)
+const upload = multer();
 
 const app = express();
 const PORT = 3000;
 
-app.use(express.json());           
-app.use(express.urlencoded({ extended: true })); 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 // view engine
 app.set("view engine", "hbs");
 app.set("views", path.join(__dirname, "views"));
@@ -24,9 +27,7 @@ app.set("views", path.join(__dirname, "views"));
 // static files (logo)
 app.use(express.static(path.join(__dirname, "public")));
 
-
-
-app.post("/api/statement", async (req, res) => {
+app.post("/api/statement",upload.none(), async (req, res) => {
   const {
     accountName,
     accountNumber,
@@ -36,12 +37,14 @@ app.post("/api/statement", async (req, res) => {
     toDate,
     salary,
   } = req.body;
-
+  console.log("BODY =>", req.body);
   const start = new Date(fromDate);
   const end = new Date(toDate);
 
   let balance = Number(salary);
   const dates = generateStatementDates(start, end, 50);
+
+  console.log("Generated Dates:", dates);
 
   const autoTransactions = dates.map((date) => generateRandomTransaction(date));
 
@@ -66,7 +69,7 @@ app.post("/api/statement", async (req, res) => {
   //   transactions: statementTxns,
   // });
 
-   const data = {
+  const data = {
     accountName,
     accountNumber,
     customerName,
@@ -93,14 +96,20 @@ app.post("/api/statement", async (req, res) => {
   });
 
   await browser.close();
-
-  res.set({
-    "Content-Type": "application/pdf",
-    "Content-Disposition": "attachment; filename=statement.pdf",
-  });
+  const isDownload = req.query.download === "true";
+  if (req.query.download === "true") {
+    res.set({
+      "Content-Type": "application/pdf",
+      "Content-Disposition": "attachment; filename=statement.pdf",
+    });
+  } else {
+    res.set({
+      "Content-Type": "application/pdf",
+      "Content-Disposition": "inline; filename=statement.pdf",
+    });
+  }
 
   res.send(pdfBuffer);
-  
 });
 
 // HOME (Preview in browser)
@@ -129,7 +138,7 @@ app.get("/", (req, res) => {
         chequeNo: "482931",
         withdrawal: "",
         credit: "2500.00",
-      },     
+      },
       {
         date: "02-08-2025",
         narration: generateNarration({
@@ -399,7 +408,6 @@ app.get("/", (req, res) => {
 
 // PDF DOWNLOAD
 app.get("/download-pdf", async (req, res) => {
-
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
 
