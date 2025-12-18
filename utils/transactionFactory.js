@@ -230,8 +230,7 @@ function generateStatementDates(startDate, endDate, count) {
 
   if (count <= 1) {
     return [new Date(startTime).toISOString().split("T")[0]];
-  }
-
+  } 
   const gap = Math.floor((endTime - startTime) / (count - 1));
 
   return Array.from({ length: count }, (_, i) => {
@@ -264,7 +263,7 @@ function generateRandomTransaction(date) {
     };
   }
 
-  // 🔹 NEFT (less frequent)
+ 
   return {
      date: date,
     narration: formatNEFTTransfer({

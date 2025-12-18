@@ -44,6 +44,8 @@ app.post("/api/statement",upload.none(), async (req, res) => {
   let balance = Number(salary);
   const dates = generateStatementDates(start, end, 50);
 
+  console.log("Generated Dates:", dates);
+
   const autoTransactions = dates.map((date) => generateRandomTransaction(date));
 
   const statementTxns = autoTransactions.map((txn) => {
