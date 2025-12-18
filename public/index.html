@@ -142,21 +142,21 @@
       function previewPDF() {
         const formData = getFormData();
 
-        fetch("/api/statement?download=false", {
+        fetch("/api/sbi/statement?download=false", {
           method: "POST",
           body: formData,
         })
           .then((res) => res.blob())
           .then((blob) => {
             const url = URL.createObjectURL(blob);
-            window.open(url); // 👈 PREVIEW IN BROWSER
+            window.open(url); 
           });
       }
 
       function downloadPDF() {
         const formData = getFormData();
 
-        fetch("/api/statement?download=true", {
+        fetch("/api/sbi/statement?download=true", {
           method: "POST",
           body: formData,
         })

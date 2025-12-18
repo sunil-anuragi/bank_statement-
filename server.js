@@ -4,6 +4,8 @@ const hbs = require("hbs");
 const puppeteer = require("puppeteer");
 const fs = require("fs");
 const Handlebars = require("handlebars");
+
+
 const {
   generateNarration,
   parseDateDMY,
@@ -24,10 +26,12 @@ app.use(express.urlencoded({ extended: true }));
 app.set("view engine", "hbs");
 app.set("views", path.join(__dirname, "views"));
 
+app.engine("html", hbs.__express);
+app.set("view engine", "html");
 // static files (logo)
 app.use(express.static(path.join(__dirname, "public")));
 
-app.post("/api/statement",upload.none(), async (req, res) => {
+app.post("/api/statement", upload.none(), async (req, res) => {
   const {
     accountName,
     accountNumber,
@@ -36,7 +40,7 @@ app.post("/api/statement",upload.none(), async (req, res) => {
     fromDate,
     toDate,
     salary,
-  } = req.body|| {};
+  } = req.body || {};
   console.log("BODY =>", req.body);
   const start = new Date(fromDate);
   const end = new Date(toDate);
@@ -79,7 +83,7 @@ app.post("/api/statement",upload.none(), async (req, res) => {
     transactions: statementTxns,
   };
 
-  const htmlPath = path.join(__dirname, "views", "statement.hbs");
+  const htmlPath = path.join(__dirname, "views", "kotak_statement.hbs");
   const html = fs.readFileSync(htmlPath, "utf8");
 
   const template = Handlebars.compile(html);
@@ -112,9 +116,116 @@ app.post("/api/statement",upload.none(), async (req, res) => {
   res.send(pdfBuffer);
 });
 
+app.post("/api/sbi/statement", upload.none(), async (req, res) => {
+  const {
+    accountName,
+    accountNumber,
+    customerName,
+    ifsc,
+    fromDate,
+    toDate,
+    salary,
+    nomination = "No",
+    micr,
+    cif,
+    modBalance,
+    interestRate,
+    drawingPower,
+    branch,
+    accountDesc,
+    date,
+    address = " A-18,SHREENAGAR SOC, DABHOLI SURAT-395004 Surat",
+  } = req.body || {};
+
+  console.log("BODY =>", req.body);
+  const start = new Date(fromDate);
+  const end = new Date(toDate);
+
+  let balance = Number(salary);
+  const dates = generateStatementDates(start, end, 50);
+
+  console.log("Generated Dates:", dates);
+
+  const autoTransactions = dates.map((date) => generateRandomTransaction(date));
+
+  const statementTxns = autoTransactions.map((txn) => {
+    const debit = Number(txn.withdrawal || 0);
+    const credit = Number(txn.credit || 0);
+    balance = balance - debit + credit;
+    return {
+      ...txn,
+      balance: balance.toFixed(2),
+    };
+  });
+
+  // res.json({
+  //   accountName,
+  //   accountNumber,
+  //   customerName,
+  //   ifsc,
+  //   period: `${fromDate} - ${toDate}`,
+  //   salary: salary,
+  //   closingBalance: balance.toFixed(2),
+  //   transactions: statementTxns,
+  // });
+
+  const data = {
+    accountName,
+    accountNumber,
+    customerName,
+    ifsc,
+    period: `${fromDate} - ${toDate}`,
+    closingBalance: balance.toFixed(2),
+    transactions: statementTxns,
+    nomination,
+    micr,
+    cif,
+    modBalance,
+    interestRate,
+    drawingPower,
+    branch,
+    accountDesc,
+    date,
+    address,
+  };
+
+  const htmlPath = path.join(__dirname, "views", "sbi_statement.html");
+  const html = fs.readFileSync(htmlPath, "utf8");
+
+  const template = Handlebars.compile(html);
+  const finalHtml = template(data);
+
+  const browser = await puppeteer.launch({ headless: "new" });
+  const page = await browser.newPage();
+
+  await page.setContent(finalHtml, { waitUntil: "networkidle0" });
+
+  const pdfBuffer = await page.pdf({
+    format: "A4",
+    printBackground: true,
+  });
+
+  await browser.close();
+  
+  const isDownload = req.query.download === "true";
+  if (req.query.download === "true") {
+    res.set({
+      "Content-Type": "application/pdf",
+      "Content-Disposition": "attachment; filename=statement.pdf",
+    });
+  } else {
+    res.set({
+      "Content-Type": "application/pdf",
+      "Content-Disposition": "inline; filename=statement.pdf",
+    });
+  }
+
+  res.send(pdfBuffer);
+});
+
 // HOME (Preview in browser)
 
-app.get("/", (req, res) => {
+app.get("/kotak", (req, res) => {
   res.render("kotak_statement", {
     logoUrl: "/logo.png",
     watermarkurl: "/background.png",
@@ -405,24 +516,25 @@ app.get("/", (req, res) => {
     ],
   });
 });
+
 app.get("/sbi", (req, res) => {
-  res.render("sbi_statement", {
+  res.render("sbi_statement.html", {
     logoUrl: "/sbilogo.png",
     accountName: "Rahul Sharma",
-    address:"A-18,SHREENAGAR SOC, DABHOLI SURAT-395004 Surat",
-    date:"24 Nov 2025",
+    address: "A-18,SHREENAGAR SOC, DABHOLI SURAT-395004 Surat",
+    date: "24 Nov 2025",
     accountNumber: "1234567890",
-    accountDesc:"REGULAR SB CHQ-INDIVIDUALS",
-    branch:"VED ROAD, SURAT",
-    drawingPower:"0.00",
-    interestRate:"2.5",
-    modBalance:"0.00",
-    cif:"85465824582",
-    ifsc:"SBIN0001234",
-    micr:"395448545",
-    nomination:"No",
+    accountDesc: "REGULAR SB CHQ-INDIVIDUALS",
+    branch: "VED ROAD, SURAT",
+    drawingPower: "0.00",
+    interestRate: "2.5",
+    modBalance: "0.00",
+    cif: "85465824582",
+    ifsc: "SBIN0001234",
+    micr: "395448545",
+    nomination: "No",
     openingBalance: "66.43",
-    fromDate:"1 Aug 2025",
+    fromDate: "1 Aug 2025",
     toDate: "1 Jan 2026",
 
     transactions: [
@@ -465,8 +577,8 @@ app.get("/sbi", (req, res) => {
         debit: "",
         credit: "10000.00",
         balance: "47448.00",
-      }
-    ]
+      },
+    ],
   });
 });
 
