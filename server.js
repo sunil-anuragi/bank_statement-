@@ -11,6 +11,7 @@ const {
   parseDateDMY,
   generateRandomTransaction,
   generateStatementDates,
+  
 } = require("./utils/transactionFactory");
 const multer = require("multer");
 
@@ -51,7 +52,7 @@ app.post("/api/kotak/statement", upload.none(), async (req, res) => {
 
   console.log("Generated Dates:", dates);
 
-  const autoTransactions = dates.map((date) => generateRandomTransaction(date));
+  const autoTransactions = dates.map((date) => generateRandomTransaction(date,salary));
 
   const statementTxns = autoTransactions.map((txn) => {
     const debit = Number(txn.withdrawal || 0);
@@ -148,11 +149,12 @@ app.post("/api/sbi/statement", upload.none(), async (req, res) => {
   const end = new Date(toDate);
 
   let balance = Number(salary);
-  const dates = generateStatementDates(start, end, entryCount);
-
+  const dates = generateStatementDates(start, end, entryCount || 50);
   console.log("Generated Dates:", dates);
 
-  const autoTransactions = dates.map((date) => generateRandomTransaction(date));
+  const autoTransactions = dates.map((date) => generateRandomTransaction(date,salary));
+
+    console.log("all autoTransactions", autoTransactions);
 
   const statementTxns = autoTransactions.map((txn) => {
     const debit = Number(txn.withdrawal || 0);
@@ -169,11 +171,24 @@ app.post("/api/sbi/statement", upload.none(), async (req, res) => {
   //   accountNumber,
   //   customerName,
   //   ifsc,
+  //   fromDate,
+  //   toDate,
   //   period: `${fromDate} - ${toDate}`,
-  //   salary: salary,
   //   closingBalance: balance.toFixed(2),
+  //   nomination,
+  //   salary,
+  //   micr,
+  //   cif,
+  //   modBalance,
+  //   interestRate,
+  //   drawingPower,
+  //   branch,
+  //   accountDesc,
+  //   date,
+  //   address,
+  //   ckycr,
   //   transactions: statementTxns,
-  // });
+  //  });
 
   const data = {
     accountName,
@@ -198,6 +213,7 @@ app.post("/api/sbi/statement", upload.none(), async (req, res) => {
     address,
     ckycr
   };
+
 const logoPath = path.join(__dirname, "public/images/sbilogo.png");
 const logoBase64 = fs.readFileSync(logoPath).toString("base64");
 
