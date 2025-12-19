@@ -31,7 +31,7 @@ app.set("view engine", "html");
 // static files (logo)
 app.use(express.static(path.join(__dirname, "public")));
 
-app.post("/api/statement", upload.none(), async (req, res) => {
+app.post("/api/kotak/statement", upload.none(), async (req, res) => {
   const {
     accountName,
     accountNumber,
@@ -82,8 +82,11 @@ app.post("/api/statement", upload.none(), async (req, res) => {
     closingBalance: balance.toFixed(2),
     transactions: statementTxns,
   };
+  const logoPath = path.join(__dirname, "public/images/logo.png");
+  const logoBase64kotak = fs.readFileSync(logoPath).toString("base64");
 
-  const htmlPath = path.join(__dirname, "views", "kotak_statement.hbs");
+  data.logoBase64kotak = `data:image/png;base64,${logoBase64kotak}`;
+  const htmlPath = path.join(__dirname, "views", "kotak_statement.html");
   const html = fs.readFileSync(htmlPath, "utf8");
 
   const template = Handlebars.compile(html);
@@ -125,7 +128,7 @@ app.post("/api/sbi/statement", upload.none(), async (req, res) => {
     fromDate,
     toDate,
     salary,
-    nomination = "No",
+    nomination,
     micr,
     cif,
     modBalance,
@@ -134,7 +137,8 @@ app.post("/api/sbi/statement", upload.none(), async (req, res) => {
     branch,
     accountDesc,
     date,
-    address = " A-18,SHREENAGAR SOC, DABHOLI SURAT-395004 Surat",
+    address ,
+    ckycr
   } = req.body || {};
 
   console.log("BODY =>", req.body);
@@ -174,10 +178,13 @@ app.post("/api/sbi/statement", upload.none(), async (req, res) => {
     accountNumber,
     customerName,
     ifsc,
+    fromDate,
+    toDate,
     period: `${fromDate} - ${toDate}`,
     closingBalance: balance.toFixed(2),
     transactions: statementTxns,
     nomination,
+    salary,
     micr,
     cif,
     modBalance,
@@ -187,7 +194,12 @@ app.post("/api/sbi/statement", upload.none(), async (req, res) => {
     accountDesc,
     date,
     address,
+    ckycr
   };
+const logoPath = path.join(__dirname, "public/images/sbilogo.png");
+const logoBase64 = fs.readFileSync(logoPath).toString("base64");
+
+data.logoBase64 = `data:image/png;base64,${logoBase64}`;
 
   const htmlPath = path.join(__dirname, "views", "sbi_statement.html");
   const html = fs.readFileSync(htmlPath, "utf8");
