@@ -212,7 +212,8 @@ app.post("/api/sbi/statement", upload.none(), async (req, res) => {
     accountDesc,
     date,
     address,
-    ckycr
+    ckycr,
+    balance
   };
 
 const logoPath = path.join(__dirname, "public/images/sbilogo.png");
