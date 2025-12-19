@@ -40,13 +40,14 @@ app.post("/api/kotak/statement", upload.none(), async (req, res) => {
     fromDate,
     toDate,
     salary,
+    entryCount
   } = req.body || {};
   console.log("BODY =>", req.body);
   const start = new Date(fromDate);
   const end = new Date(toDate);
 
   let balance = Number(salary);
-  const dates = generateStatementDates(start, end, 50);
+  const dates = generateStatementDates(start, end, entryCount);
 
   console.log("Generated Dates:", dates);
 
@@ -138,7 +139,8 @@ app.post("/api/sbi/statement", upload.none(), async (req, res) => {
     accountDesc,
     date,
     address ,
-    ckycr
+    ckycr,
+    entryCount
   } = req.body || {};
 
   console.log("BODY =>", req.body);
@@ -146,7 +148,7 @@ app.post("/api/sbi/statement", upload.none(), async (req, res) => {
   const end = new Date(toDate);
 
   let balance = Number(salary);
-  const dates = generateStatementDates(start, end, 50);
+  const dates = generateStatementDates(start, end, entryCount);
 
   console.log("Generated Dates:", dates);
 
