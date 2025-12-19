@@ -1,175 +1,261 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Bank Statement</title>
+<head>
+  <meta charset="UTF-8" />
+  <title>Bank Statement Generator</title>
 
-    <style>
-      * {
-        box-sizing: border-box;
-        font-family: "Segoe UI", Arial, sans-serif;
-      }
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: "Segoe UI", Arial, sans-serif;
+    }
 
-      body {
-        margin: 0;
-        height: 100vh;
-        background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
+    body {
+      margin: 0;
+      height: 100vh;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
 
-      .card {
-        background: #fff;
-        width: 420px;
-        padding: 25px;
-        border-radius: 14px;
-        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
-      }
+    .card {
+      background: #fff;
+      width: 480px;
+      padding: 25px;
+      border-radius: 14px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+      max-height: 92vh;
+      overflow-y: auto;
+    }
 
-      .title {
-        text-align: center;
-        font-size: 22px;
-        font-weight: 600;
-        color: #203a43;
-        margin-bottom: 20px;
-      }
+    .title {
+      text-align: center;
+      font-size: 22px;
+      font-weight: 600;
+      color: #203a43;
+      margin-bottom: 15px;
+    }
 
-      .field {
-        margin-bottom: 12px;
-      }
+    /* Toggle */
+    .bank-toggle {
+      position: relative;
+      display: flex;
+      background: #e0e0e0;
+      border-radius: 30px;
+      height: 42px;
+      margin-bottom: 25px;
+      overflow: hidden;
+    }
 
-      .field label {
-        font-size: 12px;
-        font-weight: 600;
-        color: #555;
-        display: block;
-        margin-bottom: 4px;
-      }
+    .bank-toggle span {
+      flex: 1;
+      text-align: center;
+      line-height: 42px;
+      font-weight: 600;
+      z-index: 2;
+      color: #555;
+      cursor: pointer;
+    }
 
-      .field input {
-        width: 100%;
-        padding: 10px;
-        border-radius: 8px;
-        border: 1px solid #ccc;
-        font-size: 14px;
-        outline: none;
-      }
+    .bank-toggle .slider {
+      position: absolute;
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(135deg, #2c5364, #203a43);
+      border-radius: 30px;
+      left: 0;
+      transition: 0.3s ease;
+    }
 
-      .buttons {
-        display: flex;
-        gap: 10px;
-        margin-top: 15px;
-      }
+    .bank-toggle.active-kotak .slider { left: 50%; }
+    .bank-toggle.active-sbi span.sbi,
+    .bank-toggle.active-kotak span.kotak { color: #fff; }
 
-      .btn {
-        flex: 1;
-        padding: 12px;
-        background: linear-gradient(135deg, #2c5364, #203a43);
-        border: none;
-        color: #fff;
-        font-size: 14px;
-        font-weight: 600;
-        border-radius: 10px;
-        cursor: pointer;
-      }
+    /* Form */
+    .field { margin-bottom: 12px; }
 
-      .btn.secondary {
-        background: linear-gradient(135deg, #5f6368, #3c4043);
-      }
-    </style>
-  </head>
-  <body>
-    <div class="card">
-      <div class="title">Bank Statement</div>
+    .field label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #555;
+      display: block;
+      margin-bottom: 4px;
+    }
 
-      <!-- SINGLE FORM -->
-      <form id="statementForm">
-        <div class="field">
-          <label>Account Name</label>
-          <input name="accountName" required />
-        </div>
+    .field input,
+    .field textarea {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
 
-        <div class="field">
-          <label>Account Number</label>
-          <input name="accountNumber" required />
-        </div>
+    textarea { resize: none; }
 
-        <div class="field">
-          <label>Customer Name</label>
-          <input name="customerName" required />
-        </div>
+    .buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+    }
 
-        <div class="field">
-          <label>IFSC</label>
-          <input name="ifsc" required />
-        </div>
+    .btn {
+      flex: 1;
+      padding: 12px;
+      background: linear-gradient(135deg, #2c5364, #203a43);
+      border: none;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 10px;
+      cursor: pointer;
+    }
 
-        <div class="field">
-          <label>From Date</label>
-          <input type="date" name="fromDate" required />
-        </div>
+    .btn.secondary {
+      background: linear-gradient(135deg, #5f6368, #3c4043);
+    }
 
-        <div class="field">
-          <label>To Date</label>
-          <input type="date" name="toDate" required />
-        </div>
+    .hidden { display: none; }
+  </style>
+</head>
 
-        <div class="field">
-          <label>Salary</label>
-          <input type="number" name="salary" required />
-        </div>
+<body>
+<div class="card">
+  <div class="title">Bank Statement</div>
 
-        <div class="buttons">
-          <button class="btn secondary" type="button" onclick="previewPDF()">
-            👁 Preview
-          </button>
+  <!-- Toggle -->
+  <div class="bank-toggle active-sbi" id="bankToggle">
+    <div class="slider"></div>
+    <span class="sbi" onclick="switchBank('sbi')">SBI</span>
+    <span class="kotak" onclick="switchBank('kotak')">Kotak</span>
+  </div>
 
-          <button class="btn" type="button" onclick="downloadPDF()">
-            ⬇ Download
-          </button>
-        </div>
-      </form>
+  <!-- ================= SBI FORM ================= -->
+  <form id="sbiForm">
+    <div class="field"><label>Account Name</label><input name="accountName" required></div>
+    <div class="field"><label>Account Number</label><input name="accountNumber" required></div>
+    <div class="field"><label>Customer Name</label><input name="customerName" required></div>
+
+    <div class="field"><label>Account Description</label><input name="accountDesc"></div>
+    <div class="field"><label>Branch</label><input name="branch"></div>
+    <div class="field"><label>IFSC</label><input name="ifsc" required></div>
+    <div class="field"><label>MICR</label><input name="micr"></div>
+    <div class="field"><label>CIF</label><input name="cif"></div>
+    <div class="field"><label>CKYC</label><input name="ckycr"></div>
+
+    <div class="field"><label>Nomination</label><input name="nomination"></div>
+    <div class="field"><label>Mode Balance</label><input name="modBalance"></div>
+    <div class="field"><label>Drawing Power</label><input name="drawingPower"></div>
+    <div class="field"><label>Interest Rate</label><input name="interestRate" placeholder="7%"></div>
+
+    <div class="field"><label>Address</label>
+      <textarea name="address" rows="2"></textarea>
     </div>
 
-    <script>
-      function getFormData() {
-        const form = document.getElementById("statementForm");
-        const formData = new FormData(form);
-        return formData;
-      }
+    <div class="field"><label>Statement Date</label><input type="date" name="date"></div>
+    <div class="field"><label>From Date</label><input type="date" name="fromDate" required></div>
+    <div class="field"><label>To Date</label><input type="date" name="toDate" required></div>
 
-      function previewPDF() {
-        const formData = getFormData();
+    <div class="buttons">
+      <button type="button" class="btn secondary" onclick="preview('sbi')">👁 Preview</button>
+      <button type="button" class="btn" onclick="download('sbi')">⬇ Download</button>
+    </div>
+  </form>
 
-        fetch("/api/sbi/statement?download=false", {
-          method: "POST",
-          body: formData,
-        })
-          .then((res) => res.blob())
-          .then((blob) => {
-            const url = URL.createObjectURL(blob);
-            window.open(url); 
-          });
-      }
+  <!-- ================= KOTAK FORM ================= -->
+<form id="kotakForm" class="hidden">
+  <div class="field">
+    <label>Account Holder Name</label>
+    <input name="accountName" required />
+  </div>
 
-      function downloadPDF() {
-        const formData = getFormData();
+  <div class="field">
+    <label>Account Number</label>
+    <input name="accountNumber" required />
+  </div>
 
-        fetch("/api/sbi/statement?download=true", {
-          method: "POST",
-          body: formData,
-        })
-          .then((res) => res.blob())
-          .then((blob) => {
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = "statement.pdf";
-            a.click();
-            URL.revokeObjectURL(url);
-          });
-      }
-    </script>
-  </body>
+  <div class="field">
+    <label>Customer ID</label>
+    <input name="customerId" />
+  </div>
+
+  <div class="field">
+    <label>Branch</label>
+    <input name="branch" />
+  </div>
+
+  <div class="field">
+    <label>IFSC</label>
+    <input name="ifsc" required />
+  </div>
+
+  <!-- ✅ NEW FIELDS -->
+  <div class="field">
+    <label>From Date</label>
+    <input type="date" name="fromDate" required />
+  </div>
+
+  <div class="field">
+    <label>To Date</label>
+    <input type="date" name="toDate" required />
+  </div>
+
+  <div class="field">
+    <label>Monthly Salary</label>
+    <input type="number" name="salary" placeholder="25000" />
+  </div>
+
+  <div class="buttons">
+    <button type="button" class="btn secondary" onclick="preview('kotak')">
+      👁 Preview
+    </button>
+    <button type="button" class="btn" onclick="download('kotak')">
+      ⬇ Download
+    </button>
+  </div>
+</form>
+</div>
+
+<script>
+  function switchBank(bank) {
+    const toggle = document.getElementById("bankToggle");
+    const sbiForm = document.getElementById("sbiForm");
+    const kotakForm = document.getElementById("kotakForm");
+
+    toggle.className = "bank-toggle " + (bank === "sbi" ? "active-sbi" : "active-kotak");
+    sbiForm.classList.toggle("hidden", bank !== "sbi");
+    kotakForm.classList.toggle("hidden", bank !== "kotak");
+  }
+
+  function preview(bank) {
+    const form = document.getElementById(bank + "Form");
+    const api = bank === "sbi" ? "/api/sbi/statement" : "/api/kotak/statement";
+
+    fetch(api + "?download=false", {
+      method: "POST",
+      body: new FormData(form),
+    })
+      .then(r => r.blob())
+      .then(b => window.open(URL.createObjectURL(b)));
+  }
+
+  function download(bank) {
+    const form = document.getElementById(bank + "Form");
+    const api = bank === "sbi" ? "/api/sbi/statement" : "/api/kotak/statement";
+
+    fetch(api + "?download=true", {
+      method: "POST",
+      body: new FormData(form),
+    })
+      .then(r => r.blob())
+      .then(b => {
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(b);
+        a.download = bank.toUpperCase() + "_Statement.pdf";
+        a.click();
+      });
+  }
+</script>
+</body>
 </html>
