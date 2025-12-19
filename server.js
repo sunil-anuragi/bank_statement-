@@ -11,7 +11,7 @@ const {
   parseDateDMY,
   generateRandomTransaction,
   generateStatementDates,
-  
+  resetStatementFlags
 } = require("./utils/transactionFactory");
 const multer = require("multer");
 
@@ -149,6 +149,7 @@ app.post("/api/sbi/statement", upload.none(), async (req, res) => {
   const end = new Date(toDate);
 
   let balance = Number(salary);
+  resetStatementFlags();
   const dates = generateStatementDates(start, end, entryCount || 50);
   console.log("Generated Dates:", dates);
 

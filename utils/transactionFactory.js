@@ -240,19 +240,29 @@ function generateStatementDates(startDate, endDate, count) {
 
 }
 
+function isSalaryDate(date, salaryDay) {
+  const d = new Date(date);
+  return d.getDate() === salaryDay;
+}
+  let salaryNEFTDone = false;
+  let emiDone = false;
+  let bankChargeCount = 0;
+
+function resetStatementFlags() {
+  salaryNEFTDone = false;
+  emiDone = false;
+  bankChargeCount = 0;
+}
 
 
+function generateRandomTransaction(date,salary=50000,salaryDay = 6) {
 
-let salaryNEFTDone = false;
-let emiDone = false;
-let bankChargeCount = 0;
-
-function generateRandomTransaction(date,salary=50000) {
   const r = Math.random();
 
 
-  if (!salaryNEFTDone) {
+  if (!salaryNEFTDone && isSalaryDate(date, salaryDay)) {
     salaryNEFTDone = true;
+
     return {
       date,
       narration: formatNEFTTransfer({
@@ -348,4 +358,4 @@ function generateRandomTransaction(date,salary=50000) {
 
 
 
-module.exports = { generateNarration,parseDateDMY,generateRandomTransaction,generateStatementDates};
+module.exports = { generateNarration,parseDateDMY,generateRandomTransaction,generateStatementDates,resetStatementFlags};
