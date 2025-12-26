@@ -102,7 +102,7 @@
 
 .info-item {
   display: grid;
-  grid-template-columns: 130px auto; /* 👈 LABEL WIDTH FIXED */
+  grid-template-columns: 150px auto; /* 👈 LABEL WIDTH FIXED */
   column-gap: 2px;
   margin-bottom: 10px;
   
@@ -136,11 +136,11 @@
 }
 .col-ref {
   text-align: start;
-  width: 50px;
+  width: 90px;
   word-break: break-word;
 }
 .col-amt {
-  width: 120px;         
+  width: 90px;         
   text-align: right;
   white-space: nowrap;
 }
@@ -177,77 +177,87 @@
     <div class="info-left">
 
       <div class="info-item">
-        <span class="label">Account Name</span>
+        <span class="label">Account Name&nbsp;</span>
         <span class="value">{{accountName}}</span>
       </div>
 
       <div class="info-item">
-        <span class="label">Address</span>
+        <span class="label">Address&nbsp;</span>
         <span class="value">{{address}}</span>
       </div>
 
       <div class="info-item">
-        <span class="label">Date</span>
+        <span class="label">Date&nbsp;</span>
         <span class="value">{{date}}</span>
       </div>
 
       <div class="info-item">
-        <span class="label">Account Number</span>
+        <span class="label">Account Number&nbsp;</span>
         <span class="value">{{accountNumber}}</span>
       </div>
 
       <div class="info-item">
-        <span class="label">Account Description</span>
+        <span class="label">Account Description&nbsp;</span>
         <span class="value">{{accountDesc}}</span>
       </div>
 
       <div class="info-item">
-        <span class="label">Branch</span>
+        <span class="label">Branch&nbsp;</span>
         <span class="value">{{branch}}</span>
       </div>
 
       <div class="info-item">
-        <span class="label">Drawing Power</span>
+        <span class="label">Drawing Power&nbsp;</span>
         <span class="value">{{drawingPower}}</span>
       </div>
 
       <div class="info-item">
-        <span class="label">Interest Rate (% p.a.)</span>
+        <span class="label">Interest Rate (% p.a.)&nbsp;</span>
         <span class="value">{{interestRate}}</span>
       </div>
 
       <div class="info-item">
-        <span class="label">MOD Balance</span>
+        <span class="label">MOD Balance&nbsp;</span>
         <span class="value">{{modBalance}}</span>
       </div>
 
       <div class="info-item">
-        <span class="label">CIF No</span>
+        <span class="label">CIF No&nbsp;</span>
         <span class="value">{{cif}}</span>
       </div>
 
       <div class="info-item">
-        <span class="label">CKYCR Number</span>
+        <span class="label">CKYCR Number&nbsp;</span>
         <span class="value">{{ckycr}}</span>
       </div>
 
       <div class="info-item">
-        <span class="label">IFS Code</span>
+        <span class="label">IFS Code&nbsp;</span>
         <span class="value">{{ifsc}}</span>
       </div>
 
       <div class="info-item">
-        <span class="label">MICR Code</span>
+        <span class="label">(Indian Financial System)&nbsp;</span>
+        <!-- <span class="value">{{ifsc}}</span> -->
+      </div>
+
+      <div class="info-item">
+        <span class="label">MICR Code&nbsp;</span>
         <span class="value">{{micr}}</span>
       </div>
 
       <div class="info-item">
-        <span class="label">Nomination Registered</span>
+        <span class="label">(Magnetic Ink Character Recognition)&nbsp;</span>
+        <!-- <span class="value">{{micr}}</span> -->
+      </div>
+
+      <div class="info-item">
+        <span class="label">Nomination Registered&nbsp;</span>
         <span class="value">{{nomination}}</span>
       </div>
 
       <div class="info-item">
-        <span class="label">Balance as on  {{fromDate}}</span>
+        <span class="label">Balance as on  {{fromDate}}&nbsp;</span>
         <span class="value">{{salary}}</span>
       </div>
 
@@ -279,7 +289,7 @@
     <tr>
       <td class="center">{{date}}</td>
       <td class="center">{{date}}</td>
-    {{#if debit}}
+    {{#if withdrawal}}
     <td>
       <div>TO TRANSFER-</div>
       <div>{{narration}}</div>
@@ -290,16 +300,30 @@
       <div>{{narration}}</div>
     </td>
     {{/if}}
-    {{#if debit}}
+    {{#if withdrawal}}
+    {{#if chequeNo}}
     <td>
       <div>TRANSFER TO</div>
       <div>{{chequeNo}}</div>
     </td>
     {{else}}
     <td>
+      <div></div>
+      
+    </td>
+    {{/if}}
+    {{else}}
+    {{#if chequeNo}}
+    <td>
       <div>TRANSFER FROM</div>
       <div>{{chequeNo}}</div>
     </td>
+     {{else}}
+    <td>
+      <div></div>
+      
+    </td>
+    {{/if}}
     {{/if}}
       <td class="num">{{withdrawal}}</td>
       <td class="num">{{credit}}</td>

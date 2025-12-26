@@ -121,6 +121,14 @@ app.post("/api/kotak/statement", upload.none(), async (req, res) => {
   res.send(pdfBuffer);
 });
 
+function formatDateDMY(dateStr) {
+  const date = new Date(dateStr);
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = date.toLocaleString("en-US", { month: "short" });
+  const year = date.getFullYear();
+  return `${day} ${month} ${year}`;
+}
+
 app.post("/api/sbi/statement", upload.none(), async (req, res) => {
   const {
     accountName,
@@ -147,6 +155,9 @@ app.post("/api/sbi/statement", upload.none(), async (req, res) => {
   console.log("BODY =>", req.body);
   const start = new Date(fromDate);
   const end = new Date(toDate);
+  const formattedcreateDate = formatDateDMY(date);
+  const formattedFromDate = formatDateDMY(fromDate);
+  const formattedToDate = formatDateDMY(toDate);
 
   let balance = Number(salary);
   resetStatementFlags();
@@ -196,9 +207,9 @@ app.post("/api/sbi/statement", upload.none(), async (req, res) => {
     accountNumber,
     customerName,
     ifsc,
-    fromDate,
-    toDate,
-    period: `${fromDate} - ${toDate}`,
+    fromDate: formattedFromDate,
+    toDate: formattedToDate,
+    period: `${formattedFromDate} - ${formattedToDate}`,
     closingBalance: balance.toFixed(2),
     transactions: statementTxns,
     nomination,
@@ -210,7 +221,7 @@ app.post("/api/sbi/statement", upload.none(), async (req, res) => {
     drawingPower,
     branch,
     accountDesc,
-    date,
+    date:formattedcreateDate,
     address,
     ckycr,
     balance
