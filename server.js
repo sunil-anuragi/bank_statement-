@@ -149,7 +149,9 @@ app.post("/api/sbi/statement", upload.none(), async (req, res) => {
     date,
     address ,
     ckycr,
-    entryCount
+    entryCount,
+    bankName,
+    salaryrRefName,
   } = req.body || {};
 
   console.log("BODY =>", req.body);
@@ -164,7 +166,7 @@ app.post("/api/sbi/statement", upload.none(), async (req, res) => {
   const dates = generateStatementDates(start, end, entryCount || 50);
   console.log("Generated Dates:", dates);
 
-  const autoTransactions = dates.map((date) => generateRandomTransaction(date,salary));
+  const autoTransactions = dates.map((date) => generateRandomTransaction(date,salary,bankName,salaryrRefName));
 
     console.log("all autoTransactions", autoTransactions);
 
@@ -224,7 +226,9 @@ app.post("/api/sbi/statement", upload.none(), async (req, res) => {
     date:formattedcreateDate,
     address,
     ckycr,
-    balance
+    balance,
+    bankName,
+    salaryrRefName
   };
 
 const logoPath = path.join(__dirname, "public/images/sbilogo.png");

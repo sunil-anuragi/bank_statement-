@@ -13,15 +13,9 @@ function formatUPITransfer({
   );
 }
 
-function formatNEFTTransfer({
-  ifsc,
-  neftRef,
-  accountRef,
-  beneficiaryName,
-}) {
+function formatNEFTTransfer({ ifsc, neftRef, accountRef, beneficiaryName }) {
   return (
-    `TRANSFERNEFT*${ifsc}*${neftRef}\n` +
-    `${accountRef}*${beneficiaryName.toUpperCase()}`
+    `NEFT*${ifsc}*${neftRef}\n` + `*${beneficiaryName.toUpperCase()}*Salary-`
   );
 }
 
@@ -36,97 +30,40 @@ function formatCashDeposit({
     `${accountRef}*${depositorName.toUpperCase()}`
   );
 }
-function formatCDMDeposit({
-  cdmId,
-  depositRef,
-  accountRef,
-  depositorName,
-}) {
+function formatCDMDeposit({ cdmId, depositRef, accountRef, depositorName }) {
   return (
     `CASH DEP-CDM*${cdmId}*${depositRef}\n` +
     `${accountRef}*${depositorName.toUpperCase()}`
   );
 }
-function formatCashWithdrawal({
-  branchCode,
-  withdrawalRef,
-  accountRef,
-}) {
+function formatCashWithdrawal({ branchCode, withdrawalRef, accountRef }) {
+  return `CASH WITHDRAWAL*${branchCode}*${withdrawalRef}\n` + `${accountRef}`;
+}
+function formatEmiDeduction({ bankName, loanRef, emiNo }) {
+  return `EMI DEBIT*${bankName}\n` + `${loanRef}*EMI-${emiNo}`;
+}
+function formatAtmSwipe({ atmId, merchantName, cardLast4 }) {
   return (
-    `CASH WITHDRAWAL*${branchCode}*${withdrawalRef}\n` +
-    `${accountRef}`
+    `ATM SWIPE*${atmId}\n` + `${merchantName.toUpperCase()}*XX${cardLast4}`
   );
 }
-function formatEmiDeduction({
-  bankName,
-  loanRef,
-  emiNo,
-}) {
-  return (
-    `EMI DEBIT*${bankName}\n` +
-    `${loanRef}*EMI-${emiNo}`
-  );
+function formatAtmCashWithdrawal({ atmId, txnRef, cardLast4 }) {
+  return `ATM CASH*${atmId}*${txnRef}\n` + `CARD*XX${cardLast4}`;
 }
-function formatAtmSwipe({
-  atmId,
-  merchantName,
-  cardLast4,
-}) {
-  return (
-    `ATM SWIPE*${atmId}\n` +
-    `${merchantName.toUpperCase()}*XX${cardLast4}`
-  );
+function formatUPITransaction({ upiId, refNo, name }) {
+  return `UPI*${upiId}*${refNo}\n` + `${name.toUpperCase()}`;
 }
-function formatAtmCashWithdrawal({
-  atmId,
-  txnRef,
-  cardLast4,
-}) {
-  return (
-    `ATM CASH*${atmId}*${txnRef}\n` +
-    `CARD*XX${cardLast4}`
-  );
+function formatChequeDeposit({ chequeNo, bankName, accountRef }) {
+  return `CHEQUE DEP*${bankName}\n` + `CHQ-${chequeNo}*${accountRef}`;
 }
-function formatUPITransaction({
-  upiId,
-  refNo,
-  name,
-}) {
-  return (
-    `UPI*${upiId}*${refNo}\n` +
-    `${name.toUpperCase()}`
-  );
-}
-function formatChequeDeposit({
-  chequeNo,
-  bankName,
-  accountRef,
-}) {
-  return (
-    `CHEQUE DEP*${bankName}\n` +
-    `CHQ-${chequeNo}*${accountRef}`
-  );
-}
-function formatInterestCredit({
-  period,
-}) {
+function formatInterestCredit({ period }) {
   return `INTEREST CREDIT\n${period}`;
 }
-function formatBankCharges({
-  chargeType,
-  refNo,
-}) {
-  return (
-    `${chargeType.toUpperCase()}\n` +
-    `REF-${refNo}`
-  );
+function formatBankCharges({ chargeType, refNo }) {
+  return `${chargeType.toUpperCase()}\n` + `REF-${refNo}`;
 }
 
-function formatOtherTransaction({
-  title,
-  refNo,
-  description,
-}) {
+function formatOtherTransaction({ title, refNo, description }) {
   return (
     `${title.toUpperCase()}\n` +
     `REF-${refNo}${description ? `*${description}` : ""}`
@@ -204,10 +141,11 @@ function randomAmount(min = 100, max = 8000) {
 }
 
 function randomDateBetween(start, end) {
-  const d = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+  const d = new Date(
+    start.getTime() + Math.random() * (end.getTime() - start.getTime())
+  );
   return d.toISOString().slice(0, 10).split("-").reverse().join("-");
 }
-
 
 function formatDateDMY(date) {
   const d = date instanceof Date ? date : new Date(date);
@@ -223,26 +161,24 @@ function formatDateDMY(date) {
   return `${dd}-${mm}-${yyyy}`;
 }
 
-
 function generateStatementDates(startDate, endDate, count) {
-   const startTime = new Date(startDate).getTime();
+  const startTime = new Date(startDate).getTime();
   const endTime = new Date(endDate).getTime();
 
   if (count <= 1) {
     return [new Date(startTime).toISOString().split("T")[0]];
-  } 
+  }
   const gap = Math.floor((endTime - startTime) / (count - 1));
 
   return Array.from({ length: count }, (_, i) => {
     const date = new Date(startTime + gap * i);
-    return formatDate(date)
+    return formatDate(date);
     // return date.toISOString().split("T")[0]; // YYYY-MM-DD
   });
- 
 }
 function formatDate(date) {
-  const day = String(date.getDate()).padStart(2, '0');
-  const month = date.toLocaleString('en-US', { month: 'short' }).toUpperCase();
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = date.toLocaleString("en-US", { month: "short" }).toUpperCase();
   const year = date.getFullYear();
 
   return `${day} ${month} ${year}`;
@@ -252,9 +188,9 @@ function isSalaryDate(date, salaryDay) {
   const d = new Date(date);
   return d.getDate() === salaryDay;
 }
-  let salaryNEFTDone = false;
-  let emiDone = false;
-  let bankChargeCount = 0;
+let salaryNEFTDone = false;
+let emiDone = false;
+let bankChargeCount = 0;
 
 function resetStatementFlags() {
   salaryNEFTDone = false;
@@ -262,22 +198,49 @@ function resetStatementFlags() {
   bankChargeCount = 0;
 }
 
+const salaryDoneForMonth = {};
+const salaryDayForMonth = {};
 
-function generateRandomTransaction(date,salary=50000,salaryDay = 6) {
+function getRandomSalaryDay(monthKey) {
+  if (!salaryDayForMonth[monthKey]) {
+    salaryDayForMonth[monthKey] = Math.floor(Math.random() * 10) + 1;
+  }
+  return salaryDayForMonth[monthKey];
+}
 
+function getMonthKey(date) {
+  const d = new Date(date);
+  return `${d.getFullYear()}-${d.getMonth() + 1}`; // e.g. 2025-1
+}
+
+function isSalaryDate(date, salaryDay) {
+  return new Date(date).getDate() === salaryDay;
+}
+
+function generateRandomTransaction(
+  date,
+  salary = 50000,
+  // salaryDay = 6,
+  bankName = "HDFC BANK",
+  salaryRefName = "ABC PRIVATE LIMITED"
+) {
   const r = Math.random();
+  const monthKey = getMonthKey(date);
+  console.log("Month Key:", monthKey);
+  const salaryDay = getRandomSalaryDay(monthKey);
 
-
-  if (!salaryNEFTDone && isSalaryDate(date, salaryDay)) {
-    salaryNEFTDone = true;
+  // ✅ SALARY CREDIT (once per month)
+  if (!salaryDoneForMonth[monthKey] && isSalaryDate(date, salaryDay)) {
+    salaryDoneForMonth[monthKey] = true;
 
     return {
       date,
       narration: formatNEFTTransfer({
-        ifsc: "HDFC0001234",
-        neftRef: "NEFT" + Math.floor(100000 + Math.random() * 900000),
-        accountRef: Math.floor(1000000000000 + Math.random() * 9000000000000),
-        beneficiaryName: "ABC PRIVATE LIMITED",
+        ifsc: "SBIN" + Math.floor(100000 + Math.random() * 900000),
+        neftRef: "HDFC" + Math.floor(100000 + Math.random() * 900000),
+
+        // accountRef: Math.floor(1000000000000 + Math.random() * 9000000000000),
+        beneficiaryName: bankName,
       }),
       chequeNo: "NEFT",
       withdrawal: "",
@@ -285,15 +248,15 @@ function generateRandomTransaction(date,salary=50000,salaryDay = 6) {
     };
   }
 
-
   if (!emiDone && r < 0.1) {
     emiDone = true;
-    
+
     return {
       date,
       narration: formatEmiDeduction({
         bankName: "HDFC BANK",
-        loanRef: "HL" + Math.floor(1000000000000 + Math.random() * 9000000000000),
+        loanRef:
+          "HL" + Math.floor(1000000000000 + Math.random() * 9000000000000),
         emiNo: Math.floor(1 + Math.random() * 36),
       }),
       chequeNo: "",
@@ -301,7 +264,6 @@ function generateRandomTransaction(date,salary=50000,salaryDay = 6) {
       credit: "",
     };
   }
-
 
   if (bankChargeCount < 2 && r < 0.15) {
     bankChargeCount++;
@@ -329,7 +291,6 @@ function generateRandomTransaction(date,salary=50000,salaryDay = 6) {
     };
   }
 
- 
   if (r < 0.35) {
     return {
       date,
@@ -344,7 +305,6 @@ function generateRandomTransaction(date,salary=50000,salaryDay = 6) {
     };
   }
 
-
   const isCredit = Math.random() < 0.4;
 
   return {
@@ -354,16 +314,22 @@ function generateRandomTransaction(date,salary=50000,salaryDay = 6) {
       referenceNo: Math.floor(100000000000 + Math.random() * 900000000000),
       name: randomFrom(names),
       bankShort: randomFrom(banks),
-      upiId: `${randomFrom(names).toLowerCase().replace(" ", "")}@${randomFrom(upiIds)}`,
+      upiId: `${randomFrom(names).toLowerCase().replace(" ", "")}@${randomFrom(
+        upiIds
+      )}`,
     }),
-    chequeNo: Math.floor(1000000000000 + Math.random() * 9000000000000).toString(),
+    chequeNo: Math.floor(
+      1000000000000 + Math.random() * 9000000000000
+    ).toString(),
     withdrawal: isCredit ? "" : randomAmount(100, 5000),
     credit: isCredit ? randomAmount(100, 8000) : "",
   };
 }
 
-
-
-
-
-module.exports = { generateNarration,parseDateDMY,generateRandomTransaction,generateStatementDates,resetStatementFlags};
+module.exports = {
+  generateNarration,
+  parseDateDMY,
+  generateRandomTransaction,
+  generateStatementDates,
+  resetStatementFlags,
+};
