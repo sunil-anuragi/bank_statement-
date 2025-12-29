@@ -4,14 +4,19 @@ function formatUPITransfer({
   type = "CR",
   referenceNo,
   name,
-  bankShort = "BARB",
+  bankShort = "IDFB",
   upiId,
 }) {
+  const upperName = name;
+
+  const nameMain = upperName.slice(0, -2); 
+  const nameLast = upperName.slice(-2);    
   return (
-    `UPI/${type}/${referenceNo}/${name.toUpperCase()}\n` +
-    `${bankShort}/${upiId}/UPI`
+    `UPI/${type}/${referenceNo}/${nameMain}\n` +
+    `${nameLast}/${bankShort}/${upiId}/Payme-`
   );
 }
+
 
 function formatNEFTTransfer({ ifsc, neftRef, accountRef, beneficiaryName }) {
   return (
@@ -30,10 +35,15 @@ function formatCashDeposit({
     `${accountRef}*${depositorName.toUpperCase()}`
   );
 }
-function formatCDMDeposit({ cdmId, depositRef, accountRef, depositorName }) {
+function formatCDMDeposit({ cdmId, depositRef, accountRef, depositorName,location }) {
+  const formattedLocation = location.replace(" ", "\n");
   return (
-    `CASH DEP-CDM*${cdmId}*${depositRef}\n` +
-    `${accountRef}*${depositorName.toUpperCase()}`
+    
+    `CDM${accountRef}SBI\n` + formattedLocation
+    // `${accountRef}`
+    // `CASH DEP (CDM)*${cdmId}*${depositRef}\n` +
+    // `${accountRef}`
+    // `${accountRef}*${depositorName.toUpperCase()}`
   );
 }
 function formatCashWithdrawal({ branchCode, withdrawalRef, accountRef }) {
@@ -47,8 +57,9 @@ function formatAtmSwipe({ atmId, merchantName, cardLast4 }) {
     `ATM SWIPE*${atmId}\n` + `${merchantName.toUpperCase()}*XX${cardLast4}`
   );
 }
-function formatAtmCashWithdrawal({ atmId, txnRef, cardLast4 }) {
-  return `ATM CASH*${atmId}*${txnRef}\n` + `CARD*XX${cardLast4}`;
+function formatAtmCashWithdrawal({ atmId, txnRef, cardLast4,location }) {
+  return `ATM WDL-ATM CASH ${txnRef}\n` +`${location}`;
+  // return `ATM WDL-ATM CASH*${atmId}*${txnRef}\n` + `CARD*XX${cardLast4}`;
 }
 function formatUPITransaction({ upiId, refNo, name }) {
   return `UPI*${upiId}*${refNo}\n` + `${name.toUpperCase()}`;
@@ -119,15 +130,50 @@ function parseDateDMY(dateStr) {
 }
 
 const names = [
-  "Rahul Kumar",
-  "Amit Sharma",
-  "Zomato",
+  "Rahul",
+  "Amit",
+  // "Zomato",
   "Amazon Pay",
-  "Swiggy",
+  // "Swiggy",
   "Flipkart",
   "Electricity Bill",
   "Petrol Pump",
 ];
+
+const usernames = [
+  "Rahul",
+  "Amit",
+  "Rishi",
+  "Patel",
+  "Zomato",
+  "RELIANCESMART",
+  "HINDUSTANPETROLEUM",
+  "Gulzar",
+  "AjayPat",
+  "Swiggy",
+  "Summit",
+  "INDIANOILPETROL",
+  "Mahesh",
+  "BHARATPETROLEUM",
+  "Kuldee",
+  "Rohit",
+];
+const loc = [
+  "TOM314 SHIVKRUPA IE UDSURAT-",
+  "TOM315 NR UDHANA BUS SSURAT-",
+  "HARINAGAR-3 UDHNA NRBSURAT-",
+  "BAMROLI 10947 AGS ATM SURAT-",
+  "PAN CORNER,ASHIRWAD TSURAT-",
+  "SBI NEW CITY LIGHT ATMSURAT-",
+];
+
+const cdmlocation = [
+  "CIVIL LINES JABALPUR JABALPUR",
+  "GORAKHPUR JABALPUR JABALPUR",
+  "WRIGHT TOWN JABALPUR JABALPUR",
+  "MADAN MAHAL JABALPUR JABALPUR",
+  "VIJAY NAGAR JABALPUR JABALPUR",
+]
 
 const banks = ["SBI", "HDFC", "ICICI", "AXIS", "PNB"];
 const upiIds = ["paytm", "phonepe", "googlepay", "amazonpay"];
@@ -138,6 +184,27 @@ function randomFrom(arr) {
 
 function randomAmount(min = 100, max = 8000) {
   return (Math.floor(Math.random() * (max - min + 1)) + min).toFixed(2);
+}
+function randomAmountwithdraw(min = 100, max = 10000) {
+  const steps = [500, 1000]; 
+  const step = steps[Math.floor(Math.random() * steps.length)];
+  const minStep = Math.ceil(min / step);
+  const maxStep = Math.floor(max / step);
+
+  const value =
+    (Math.floor(Math.random() * (maxStep - minStep + 1)) + minStep) * step;
+
+  return value.toFixed(2);
+}
+function randomAmountoverall(min = 100, max = 8000) {
+  const step = 100; 
+  const minStep = Math.ceil(min / step);
+  const maxStep = Math.floor(max / step);
+
+  const value =
+    (Math.floor(Math.random() * (maxStep - minStep + 1)) + minStep) * step;
+
+  return value.toFixed(2);
 }
 
 function randomDateBetween(start, end) {
@@ -177,7 +244,7 @@ function generateStatementDates(startDate, endDate, count) {
   });
 }
 function formatDate(date) {
-  const day = String(date.getDate()).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2);
   const month = date.toLocaleString("en-US", { month: "short" }).toUpperCase();
   const year = date.getFullYear();
 
@@ -242,6 +309,7 @@ function generateRandomTransaction(
         // accountRef: Math.floor(1000000000000 + Math.random() * 9000000000000),
         beneficiaryName: bankName,
       }),
+      hidetransfer:true,
       chequeNo: "NEFT",
       withdrawal: "",
       credit: salary,
@@ -259,35 +327,40 @@ function generateRandomTransaction(
           "HL" + Math.floor(1000000000000 + Math.random() * 9000000000000),
         emiNo: Math.floor(1 + Math.random() * 36),
       }),
+      hidetransfer:false,
       chequeNo: "",
       withdrawal: randomAmount(8000, 20000),
       credit: "",
     };
   }
 
-  if (bankChargeCount < 2 && r < 0.15) {
-    bankChargeCount++;
-    return {
-      date,
-      narration: "BANK CHARGES",
-      chequeNo: "",
-      withdrawal: randomAmount(50, 500),
-      credit: "",
-    };
-  }
+  // if (bankChargeCount < 2 && r < 0.15) {
+  //   bankChargeCount++;
+  //   return {
+  //     date,
+  //     narration: "BANK CHARGES",
+  //     chequeNo: "",
+  //     hidetransfer:false,
+  //     withdrawal: randomAmount(50, 500),
+  //     credit: "",
+  //   };
+  // }
 
   if (r < 0.25) {
     return {
       date,
       narration: formatCDMDeposit({
-        cdmId: "CDM" + Math.floor(100 + Math.random() * 900),
+        cdmId: Math.floor(100 + Math.random() * 900),
         depositRef: Math.floor(100000 + Math.random() * 900000),
-        accountRef: Math.floor(10000000 + Math.random() * 90000000),
-        depositorName: randomFrom(names),
+        accountRef: Math.floor(100000000 + Math.random() * 900000000),
+        depositorName: randomFrom(usernames),
+        location: randomFrom(cdmlocation),
       }),
+      cdmtype:true,
+      hidetransfer:false,
       chequeNo: "",
       withdrawal: "",
-      credit: randomAmount(2000, 15000),
+      credit: randomAmountwithdraw(2000, 15000),
     };
   }
 
@@ -298,9 +371,11 @@ function generateRandomTransaction(
         atmId: "ATM" + Math.floor(1000 + Math.random() * 9000),
         txnRef: Math.floor(100000 + Math.random() * 900000),
         cardLast4: Math.floor(1000 + Math.random() * 9000),
+        location: randomFrom(loc)
       }),
+      hidetransfer:false,
       chequeNo: "",
-      withdrawal: randomAmount(1000, 10000),
+      withdrawal: randomAmountwithdraw(1000, 10000),
       credit: "",
     };
   }
@@ -309,14 +384,16 @@ function generateRandomTransaction(
 
   return {
     date,
+    hidetransfer:true,
     narration: formatUPITransfer({
       type: isCredit ? "CR" : "DR",
       referenceNo: Math.floor(100000000000 + Math.random() * 900000000000),
-      name: randomFrom(names),
+      name: randomFrom(usernames),
       bankShort: randomFrom(banks),
-      upiId: `${randomFrom(names).toLowerCase().replace(" ", "")}@${randomFrom(
-        upiIds
-      )}`,
+      upiId: Math.floor(1000000000 + Math.random() * 9000000000)
+      // upiId: `${randomFrom(names).toLowerCase().replace(" ", "")}@${randomFrom(
+      //   upiIds
+      // )}`,
     }),
     chequeNo: Math.floor(
       1000000000000 + Math.random() * 9000000000000

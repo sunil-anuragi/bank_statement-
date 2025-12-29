@@ -147,7 +147,10 @@ app.post("/api/sbi/statement", upload.none(), async (req, res) => {
     branch,
     accountDesc,
     date,
-    address ,
+    address,
+    area,
+    areapincode,
+    city,
     ckycr,
     entryCount,
     bankName,
@@ -225,6 +228,9 @@ app.post("/api/sbi/statement", upload.none(), async (req, res) => {
     accountDesc,
     date:formattedcreateDate,
     address,
+    area,
+    areapincode,
+    city,
     ckycr,
     balance,
     bankName,
@@ -640,7 +646,15 @@ app.get("/download-pdf", async (req, res) => {
 
   const pdf = await page.pdf({
     format: "A4",
-    printBackground: true,
+    printBackground: false,
+     margin: {
+    top: "20px",
+    bottom: "20px",
+    left: "20px",
+    right: "20px"
+  },
+  preferCSSPageSize: true
+
   });
 
   await browser.close();
