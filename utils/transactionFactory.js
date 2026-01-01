@@ -9,14 +9,13 @@ function formatUPITransfer({
 }) {
   const upperName = name;
 
-  const nameMain = upperName.slice(0, -2); 
-  const nameLast = upperName.slice(-2);    
+  const nameMain = upperName.slice(0, -2);
+  const nameLast = upperName.slice(-2);
   return (
     `UPI/${type}/${referenceNo}/${nameMain}\n` +
     `${nameLast}/${bankShort}/${upiId}/Payme-`
   );
 }
-
 
 function formatNEFTTransfer({ ifsc, neftRef, accountRef, beneficiaryName }) {
   return (
@@ -35,10 +34,15 @@ function formatCashDeposit({
     `${accountRef}*${depositorName.toUpperCase()}`
   );
 }
-function formatCDMDeposit({ cdmId, depositRef, accountRef, depositorName,location }) {
+function formatCDMDeposit({
+  cdmId,
+  depositRef,
+  accountRef,
+  depositorName,
+  location,
+}) {
   const formattedLocation = location.replace(" ", "\n");
   return (
-    
     `CDM${accountRef}SBI\n` + formattedLocation
     // `${accountRef}`
     // `CASH DEP (CDM)*${cdmId}*${depositRef}\n` +
@@ -50,15 +54,22 @@ function formatCashWithdrawal({ branchCode, withdrawalRef, accountRef }) {
   return `CASH WITHDRAWAL*${branchCode}*${withdrawalRef}\n` + `${accountRef}`;
 }
 function formatEmiDeduction({ bankName, loanRef, emiNo }) {
-  return `EMI DEBIT*${bankName}\n` + `${loanRef}*EMI-${emiNo}`;
+  const formats = [
+    `ACH DR ${bankName} LOAN EMI\nA/C ${loanRef} INST-${emiNo}`,
+    `EMI DEBIT ${bankName} LOAN\nA/C ${loanRef} INST NO ${emiNo}`,
+    `BY EMI DR ${bankName} LOAN\nA/C ${loanRef} INST ${emiNo}`,
+  ];
+
+  return randomFrom(formats);
 }
+
 function formatAtmSwipe({ atmId, merchantName, cardLast4 }) {
   return (
     `ATM SWIPE*${atmId}\n` + `${merchantName.toUpperCase()}*XX${cardLast4}`
   );
 }
-function formatAtmCashWithdrawal({ atmId, txnRef, cardLast4,location }) {
-  return `ATM WDL-ATM CASH ${txnRef}\n` +`${location}`;
+function formatAtmCashWithdrawal({ atmId, txnRef, cardLast4, location }) {
+  return `ATM WDL-ATM CASH ${txnRef}\n` + `${location}`;
   // return `ATM WDL-ATM CASH*${atmId}*${txnRef}\n` + `CARD*XX${cardLast4}`;
 }
 function formatUPITransaction({ upiId, refNo, name }) {
@@ -79,6 +90,21 @@ function formatOtherTransaction({ title, refNo, description }) {
     `${title.toUpperCase()}\n` +
     `REF-${refNo}${description ? `*${description}` : ""}`
   );
+}
+function formatIMPSTransfer({
+  type,
+  impsRef,
+  senderReceiver,
+  bankName,
+  mobile,
+}) {
+  if (type === "CR") {
+    return (
+      `IMPS CREDIT/${impsRef}/${senderReceiver}/\n` + `${bankName}/${mobile}`
+    );
+  }
+
+  return `IMPS DEBIT/${impsRef}/${senderReceiver}/\n` + `${bankName}/${mobile}`;
 }
 
 function generateNarration(data) {
@@ -173,7 +199,7 @@ const cdmlocation = [
   "WRIGHT TOWN JABALPUR JABALPUR",
   "MADAN MAHAL JABALPUR JABALPUR",
   "VIJAY NAGAR JABALPUR JABALPUR",
-]
+];
 
 const banks = ["SBI", "HDFC", "ICICI", "AXIS", "PNB"];
 const upiIds = ["paytm", "phonepe", "googlepay", "amazonpay"];
@@ -186,7 +212,7 @@ function randomAmount(min = 100, max = 8000) {
   return (Math.floor(Math.random() * (max - min + 1)) + min).toFixed(2);
 }
 function randomAmountwithdraw(min = 100, max = 10000) {
-  const steps = [500, 1000]; 
+  const steps = [500, 1000];
   const step = steps[Math.floor(Math.random() * steps.length)];
   const minStep = Math.ceil(min / step);
   const maxStep = Math.floor(max / step);
@@ -197,7 +223,7 @@ function randomAmountwithdraw(min = 100, max = 10000) {
   return value.toFixed(2);
 }
 function randomAmountoverall(min = 100, max = 8000) {
-  const step = 100; 
+  const step = 100;
   const minStep = Math.ceil(min / step);
   const maxStep = Math.floor(max / step);
 
@@ -283,6 +309,20 @@ function getMonthKey(date) {
 function isSalaryDate(date, salaryDay) {
   return new Date(date).getDate() === salaryDay;
 }
+let impsDoneForMonth = {};
+
+function isIMPSDate(date) {
+  const day = new Date(date).getDate();
+  // IMPS usually happens mid-month or random working day
+  return day >= 5 && day <= 25;
+}
+
+let emiDoneForMonth = {};
+
+function isEmiDate(date) {
+  const day = new Date(date).getDate();
+  return day >= 1 && day <= 10; // typical EMI window
+}
 
 function generateRandomTransaction(
   date,
@@ -309,27 +349,49 @@ function generateRandomTransaction(
         // accountRef: Math.floor(1000000000000 + Math.random() * 9000000000000),
         beneficiaryName: bankName,
       }),
-      hidetransfer:true,
+      hidetransfer: true,
       chequeNo: "NEFT",
       withdrawal: "",
       credit: salary,
     };
   }
 
-  if (!emiDone && r < 0.1) {
-    emiDone = true;
+  // ✅ IMPS TRANSFER (once per month)
+  if (!impsDoneForMonth[monthKey] && isIMPSDate(date) && r < 0.12) {
+    impsDoneForMonth[monthKey] = true;
+
+    const isCredit = Math.random() < 0.5;
+
+    return {
+      date,
+      narration: formatIMPSTransfer({
+        type: isCredit ? "CR" : "DR",
+        impsRef: "IMPS" + Math.floor(100000000 + Math.random() * 900000000),
+        senderReceiver: randomFrom(usernames),
+        bankName: randomFrom(banks),
+        mobile: Math.floor(6000000000 + Math.random() * 3000000000),
+      }),
+      hidetransfer: false,
+      chequeNo: "IMPS",
+      withdrawal: isCredit ? "" : randomAmount(1000, 15000),
+      credit: isCredit ? randomAmount(1000, 20000) : "",
+    };
+  }
+
+  // ✅ EMI DEDUCTION (once per month)
+  if (!emiDoneForMonth[monthKey] && isEmiDate(date) && r < 0.15) {
+    emiDoneForMonth[monthKey] = true;
 
     return {
       date,
       narration: formatEmiDeduction({
-        bankName: "HDFC BANK",
-        loanRef:
-          "HL" + Math.floor(1000000000000 + Math.random() * 9000000000000),
-        emiNo: Math.floor(1 + Math.random() * 36),
+        bankName: randomFrom(["HDFC BANK", "SBI", "ICICI BANK", "AXIS BANK"]),
+        loanRef: "LN" + Math.floor(100000000000 + Math.random() * 900000000000),
+        emiNo: Math.floor(1 + Math.random() * 60),
       }),
-      hidetransfer:false,
-      chequeNo: "",
-      withdrawal: randomAmount(8000, 20000),
+      hidetransfer: false,
+      chequeNo: "AUTO-DEBIT",
+      withdrawal: randomAmount(8000, 25000),
       credit: "",
     };
   }
@@ -356,8 +418,8 @@ function generateRandomTransaction(
         depositorName: randomFrom(usernames),
         location: randomFrom(cdmlocation),
       }),
-      cdmtype:true,
-      hidetransfer:false,
+      cdmtype: true,
+      hidetransfer: false,
       chequeNo: "",
       withdrawal: "",
       credit: randomAmountwithdraw(2000, 15000),
@@ -371,9 +433,9 @@ function generateRandomTransaction(
         atmId: "ATM" + Math.floor(1000 + Math.random() * 9000),
         txnRef: Math.floor(100000 + Math.random() * 900000),
         cardLast4: Math.floor(1000 + Math.random() * 9000),
-        location: randomFrom(loc)
+        location: randomFrom(loc),
       }),
-      hidetransfer:false,
+      hidetransfer: false,
       chequeNo: "",
       withdrawal: randomAmountwithdraw(1000, 10000),
       credit: "",
@@ -384,13 +446,13 @@ function generateRandomTransaction(
 
   return {
     date,
-    hidetransfer:true,
+    hidetransfer: true,
     narration: formatUPITransfer({
       type: isCredit ? "CR" : "DR",
       referenceNo: Math.floor(100000000000 + Math.random() * 900000000000),
       name: randomFrom(usernames),
       bankShort: randomFrom(banks),
-      upiId: Math.floor(1000000000 + Math.random() * 9000000000)
+      upiId: Math.floor(1000000000 + Math.random() * 9000000000),
       // upiId: `${randomFrom(names).toLowerCase().replace(" ", "")}@${randomFrom(
       //   upiIds
       // )}`,

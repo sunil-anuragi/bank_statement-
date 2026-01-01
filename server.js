@@ -647,14 +647,13 @@ app.get("/download-pdf", async (req, res) => {
   const pdf = await page.pdf({
     format: "A4",
     printBackground: false,
-     margin: {
-    top: "20px",
-    bottom: "20px",
-    left: "20px",
-    right: "20px"
-  },
-  preferCSSPageSize: true
-
+    margin: {
+      top: "20px",
+      bottom: "20px",
+      left: "20px",
+      right: "20px",
+    },
+    preferCSSPageSize: true,
   });
 
   await browser.close();
