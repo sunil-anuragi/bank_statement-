@@ -4,7 +4,7 @@ const hbs = require("hbs");
 const puppeteer = require("puppeteer");
 const fs = require("fs");
 const Handlebars = require("handlebars");
-
+const { PDFDocument } = require("pdf-lib");
 
 const {
   generateNarration,
@@ -658,12 +658,43 @@ app.get("/download-pdf", async (req, res) => {
 
   await browser.close();
 
+  // For metdat data update
+  const pdfDoc = await PDFDocument.load(pdfBuffer);
+
+  pdfDoc.setTitle("Account Statement");
+  pdfDoc.setAuthor("State Bank of India");
+  pdfDoc.setSubject("Bank Account Statement");
+  pdfDoc.setKeywords([
+    "SBI",
+    "Account Statement",
+    "Bank Statement",
+    "UPI",
+    "Transactions",
+  ]);
+  pdfDoc.setCreator("Core Banking System");
+  pdfDoc.setProducer("SBI PDF Generator");
+
+  // (Optional) creation / modification date
+  pdfDoc.setCreationDate(new Date());
+  pdfDoc.setModificationDate(new Date());
+
+  // 3️⃣ Save updated PDF
+  const finalPdf = await pdfDoc.save();
   res.set({
     "Content-Type": "application/pdf",
-    "Content-Disposition": "attachment; filename=kotal-bank-statement.pdf",
+    "Content-Disposition":
+      'attachment; filename="kotal-bank-statement.pdf"',
+    "Content-Length": finalPdf.length,
   });
 
-  res.send(pdf);
+  print(finalPdf); 
+  res.send(Buffer.from(finalPdf));
+  // res.set({
+  //   "Content-Type": "application/pdf",
+  //   "Content-Disposition": "attachment; filename=kotal-bank-statement.pdf",
+  // });
+
+  // res.send(pdf);
 });
 
 // start server

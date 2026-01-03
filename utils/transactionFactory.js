@@ -8,13 +8,21 @@ function formatUPITransfer({
   upiId,
 }) {
   const upperName = name;
+  if(name = 'Hindustan petroleum'||'INDIANOIL PETROL'||'BHARAT PETROLEUM'){
 
-  const nameMain = upperName.slice(0, -2);
-  const nameLast = upperName.slice(-2);
-  return (
-    `UPI/${type}/${referenceNo}/${nameMain}\n` +
-    `${nameLast}/${bankShort}/${upiId}/Payme-`
-  );
+    return (
+      `UPI/${type}/${referenceNo}/${upperName}\n`+
+      `/${bankShort}/${upiId}/Payme-`
+    );
+   }else{
+    const nameMain = upperName.slice(0, -2);
+    const nameLast = upperName.slice(-2);
+    return (
+      `UPI/${type}/${referenceNo}/${nameMain}\n` +
+      `${nameLast}/${bankShort}/${upiId}/Payme-`
+    );
+
+  }
 }
 
 function formatNEFTTransfer({ ifsc, neftRef, accountRef, beneficiaryName }) {
@@ -172,15 +180,15 @@ const usernames = [
   "Rishi",
   "Patel",
   "Zomato",
-  "RELIANCESMART",
-  "HINDUSTANPETROLEUM",
+  "RELIANCE SMART",
+  "Hindustan petroleum",
   "Gulzar",
   "AjayPat",
   "Swiggy",
   "Summit",
-  "INDIANOILPETROL",
+  "INDIANOIL PETROL",
   "Mahesh",
-  "BHARATPETROLEUM",
+  "BHARAT PETROLEUM",
   "Kuldee",
   "Rohit",
 ];
@@ -356,45 +364,45 @@ function generateRandomTransaction(
     };
   }
 
-  // ✅ IMPS TRANSFER (once per month)
-  if (!impsDoneForMonth[monthKey] && isIMPSDate(date) && r < 0.12) {
-    impsDoneForMonth[monthKey] = true;
+  // // ✅ IMPS TRANSFER (once per month)
+  // if (!impsDoneForMonth[monthKey] && isIMPSDate(date) && r < 0.12) {
+  //   impsDoneForMonth[monthKey] = true;
 
-    const isCredit = Math.random() < 0.5;
+  //   const isCredit = Math.random() < 0.5;
 
-    return {
-      date,
-      narration: formatIMPSTransfer({
-        type: isCredit ? "CR" : "DR",
-        impsRef: "IMPS" + Math.floor(100000000 + Math.random() * 900000000),
-        senderReceiver: randomFrom(usernames),
-        bankName: randomFrom(banks),
-        mobile: Math.floor(6000000000 + Math.random() * 3000000000),
-      }),
-      hidetransfer: false,
-      chequeNo: "IMPS",
-      withdrawal: isCredit ? "" : randomAmount(1000, 15000),
-      credit: isCredit ? randomAmount(1000, 20000) : "",
-    };
-  }
+  //   return {
+  //     date,
+  //     narration: formatIMPSTransfer({
+  //       type: isCredit ? "CR" : "DR",
+  //       impsRef: "IMPS" + Math.floor(100000000 + Math.random() * 900000000),
+  //       senderReceiver: randomFrom(usernames),
+  //       bankName: randomFrom(banks),
+  //       mobile: Math.floor(6000000000 + Math.random() * 3000000000),
+  //     }),
+  //     hidetransfer: false,
+  //     chequeNo: "IMPS",
+  //     withdrawal: isCredit ? "" : randomAmount(1000, 15000),
+  //     credit: isCredit ? randomAmount(1000, 20000) : "",
+  //   };
+  // }
 
-  // ✅ EMI DEDUCTION (once per month)
-  if (!emiDoneForMonth[monthKey] && isEmiDate(date) && r < 0.15) {
-    emiDoneForMonth[monthKey] = true;
+  // // ✅ EMI DEDUCTION (once per month)
+  // if (!emiDoneForMonth[monthKey] && isEmiDate(date) && r < 0.15) {
+  //   emiDoneForMonth[monthKey] = true;
 
-    return {
-      date,
-      narration: formatEmiDeduction({
-        bankName: randomFrom(["HDFC BANK", "SBI", "ICICI BANK", "AXIS BANK"]),
-        loanRef: "LN" + Math.floor(100000000000 + Math.random() * 900000000000),
-        emiNo: Math.floor(1 + Math.random() * 60),
-      }),
-      hidetransfer: false,
-      chequeNo: "AUTO-DEBIT",
-      withdrawal: randomAmount(8000, 25000),
-      credit: "",
-    };
-  }
+  //   return {
+  //     date,
+  //     narration: formatEmiDeduction({
+  //       bankName: randomFrom(["HDFC BANK", "SBI", "ICICI BANK", "AXIS BANK"]),
+  //       loanRef: "LN" + Math.floor(100000000000 + Math.random() * 900000000000),
+  //       emiNo: Math.floor(1 + Math.random() * 60),
+  //     }),
+  //     hidetransfer: false,
+  //     chequeNo: "AUTO-DEBIT",
+  //     withdrawal: randomAmount(8000, 25000),
+  //     credit: "",
+  //   };
+  // }
 
   // if (bankChargeCount < 2 && r < 0.15) {
   //   bankChargeCount++;
