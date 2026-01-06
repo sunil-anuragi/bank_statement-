@@ -128,6 +128,23 @@ function formatDateDMY(dateStr) {
   const year = date.getFullYear();
   return `${day} ${month} ${year}`;
 }
+async function addMetadataToPdf(pdfBuffer) {
+  const pdfDoc = await PDFDocument.load(pdfBuffer);
+
+  pdfDoc.setProducer("Twings PDF Engine");
+  pdfDoc.setCreationDate(new Date());
+  pdfDoc.setModificationDate(new Date());
+  pdfDoc.setAuthor("State Bank of India");
+  pdfDoc.setSubject("Account Statement");
+  pdfDoc.setKeywords([
+    "SBI",
+    "Bank Statement",
+    "Account Summary",
+  ]);
+  pdfDoc.setCreator("Twings Admin App");
+
+  return await pdfDoc.save();
+}
 
 app.post("/api/sbi/statement", upload.none(), async (req, res) => {
   const {
@@ -261,6 +278,9 @@ data.logoBase64 = `data:image/png;base64,${logoBase64}`;
   await browser.close();
   
   const isDownload = req.query.download === "true";
+
+  const finalPdf = await addMetadataToPdf(pdfBuffer);
+
   if (req.query.download === "true") {
     res.set({
       "Content-Type": "application/pdf",
@@ -273,7 +293,7 @@ data.logoBase64 = `data:image/png;base64,${logoBase64}`;
     });
   }
 
-  res.send(pdfBuffer);
+res.send(Buffer.from(finalPdf));
 });
 
 // HOME (Preview in browser)
