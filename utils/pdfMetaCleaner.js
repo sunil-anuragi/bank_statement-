@@ -20,7 +20,7 @@ async function removeTitleCreator(pdfBuffer) {
     // 2️⃣ remove ONLY Title & Creator
     await exiftool.write(
       tempFile,
-      { Title: null, Creator: null },
+      { Title: null, Creator: null,Producer: "iText 2.0.4 (by lowagie.com)"},
       ["-overwrite_original"]
     );
 
