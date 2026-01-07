@@ -5,6 +5,7 @@ const puppeteer = require("puppeteer");
 const fs = require("fs");
 const Handlebars = require("handlebars");
 const { PDFDocument } = require("pdf-lib");
+const { removeTitleCreator } = require("./utils/pdfMetaCleaner.js");
 
 const {
   generateNarration,
@@ -128,23 +129,7 @@ function formatDateDMY(dateStr) {
   const year = date.getFullYear();
   return `${day} ${month} ${year}`;
 }
-async function addMetadataToPdf(pdfBuffer) {
-  const pdfDoc = await PDFDocument.load(pdfBuffer);
 
-  pdfDoc.setProducer("Twings PDF Engine");
-  pdfDoc.setCreationDate(new Date());
-  pdfDoc.setModificationDate(new Date());
-  pdfDoc.setAuthor("State Bank of India");
-  pdfDoc.setSubject("Account Statement");
-  pdfDoc.setKeywords([
-    "SBI",
-    "Bank Statement",
-    "Account Summary",
-  ]);
-  pdfDoc.setCreator("Twings Admin App");
-
-  return await pdfDoc.save();
-}
 
 app.post("/api/sbi/statement", upload.none(), async (req, res) => {
   const {
@@ -276,10 +261,11 @@ data.logoBase64 = `data:image/png;base64,${logoBase64}`;
   });
 
   await browser.close();
-  
-  const isDownload = req.query.download === "true";
+  const finalPdf = await removeTitleCreator(pdfBuffer);
 
-  const finalPdf = await addMetadataToPdf(pdfBuffer);
+  // const isDownload = req.query.download === "true";
+
+
 
   if (req.query.download === "true") {
     res.set({
@@ -293,7 +279,7 @@ data.logoBase64 = `data:image/png;base64,${logoBase64}`;
     });
   }
 
-res.send(Buffer.from(finalPdf));
+  res.send(finalPdf);
 });
 
 // HOME (Preview in browser)
