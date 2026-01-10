@@ -2,13 +2,34 @@
 <html>
   <head>
     <meta charset="UTF-8" />
+    <!-- {% comment %} <title>SBI Account Statement</title> {% endcomment %} -->
+
     <style>
+      @page {
+  size: A4;
+  margin-top: 50px;
+  margin-bottom: 40px;
+  margin-left: 36px;
+  margin-right: 36px;
+}
+table {
+  page-break-inside: auto;
+}
+
+thead {
+  display: table-header-group;
+}
+
+tbody tr {
+  page-break-inside: avoid;
+}
+
             body {
+              margin: 0;
               font-family: Arial, Helvetica, sans-serif;
               font-size: 12px;
-              color: #000;
-              margin: 46.2px;
             }
+
 
             .header {
               display: flex;
@@ -17,7 +38,7 @@
             }
 
             .sbi-logo {
-              height: 52px;
+              height: 53px;
               width: auto;
             }
 
@@ -59,13 +80,13 @@
               font-size: 16px;
             }
 
-            table {
+            /* {% comment %} table {
               width: 100%;
               border-collapse: collapse;
               font-size: 10.5px;
             } {% endcomment %}
 
-           th, */
+            {% comment %} th, */
             td {
               border: 1px solid #000;
               padding: 4px;
@@ -102,13 +123,43 @@
             }
             .info-meditem {
               display: grid;
-              grid-template-columns: 144px auto; /* 👈 LABEL WIDTH FIXED */
+              grid-template-columns: 146px auto; /* 👈 LABEL WIDTH FIXED */
               column-gap: 2px;
               margin-bottom: 10px;
             }
             .info-item {
               display: grid;
+              grid-template-columns: 157px auto; /* 👈 LABEL WIDTH FIXED */
+              column-gap: 2px;
+              margin-bottom: 10px;
+            }
+            .modinfo-item {
+              display: grid;
+              grid-template-columns: 154px auto; /* 👈 LABEL WIDTH FIXED */
+              column-gap: 2px;
+              margin-bottom: 10px;
+            }
+            .accountinfo-item {
+              display: grid;
               grid-template-columns: 155px auto; /* 👈 LABEL WIDTH FIXED */
+              column-gap: 2px;
+              margin-bottom: 10px;
+            }
+            .accountdesc-item {
+              display: grid;
+              grid-template-columns: 156px auto; /* 👈 LABEL WIDTH FIXED */
+              column-gap: 2px;
+              margin-bottom: 10px;
+            }
+            .accountbranch-item {
+              display: grid;
+              grid-template-columns: 154px auto; /* 👈 LABEL WIDTH FIXED */
+              column-gap: 2px;
+              margin-bottom: 10px;
+            }
+            .intinfo-item {
+              display: grid;
+              grid-template-columns: 159px auto; /* 👈 LABEL WIDTH FIXED */
               column-gap: 2px;
               margin-bottom: 10px;
             }
@@ -121,7 +172,7 @@
 
             .info-items {
               display: grid;
-              grid-template-columns: 165px auto; /* 👈 LABEL WIDTH FIXED */
+              grid-template-columns: 163px auto; /* 👈 LABEL WIDTH FIXED */
               column-gap: 2px;
               margin-bottom: 10px;
             }
@@ -207,19 +258,23 @@
               content: " : ";
             }
             .valueadd::before {
-              margin-right: 4px;
+              margin-right: 2px;
               content: " : ";
             }
             .values::before {
               content: " :";
             }
+            .page-gap {
+            height: 25px;
+            }
+
     </style>
   </head>
 
   <body>
     <!-- HEADER -->
-    <div class="header">
-      <img src="{{logoBase64}}" class="sbi-logo" alt="SBI Logo" />
+    <div class="header" style="margin-left: 8px;margin-bottom: 14px;">
+      <img src="{{logoBase64}}"  alt="SBI Logo" />
     </div>
 
     <!-- ACCOUNT INFO -->
@@ -233,13 +288,13 @@
 
           <div class="info-meditem">
             <span class="label">Address&nbsp;</span>
-            <span class="valueadd" style="margin-left: 5px;">{{address}}</span>
+            <span class="valueadd" style="margin-left: 3px;">{{address}}</span>
             <span class="label"></span>
-            <span style="margin-left: 17px">{{area}}</span>
+            <span style="margin-left: 15px">{{area}}</span>
             <span class="label"></span>
-            <span style="margin-left: 17px">{{areapincode}}</span>
+            <span style="margin-left: 15px">{{areapincode}}</span>
             <span class="label"></span>
-            <span style="margin-left: 17px">{{city}}</span>
+            <span style="margin-left: 15px">{{city}}</span>
           </div>
 
           <div class="info-item">
@@ -247,32 +302,32 @@
             <span class="value">{{date}}</span>
           </div>
 
-          <div class="info-item">
+          <div class="accountinfo-item">
             <span class="label">Account Number&nbsp;</span>
             <span class="value">{{accountNumber}}</span>
           </div>
 
-          <div class="info-item">
+          <div class="accountdesc-item">
             <span class="label">Account Description&nbsp;</span>
             <span class="value">{{accountDesc}}</span>
           </div>
 
-          <div class="info-item">
+          <div class="accountbranch-item">
             <span class="label">Branch&nbsp;</span>
             <span class="value">{{branch}}</span>
           </div>
 
-          <div class="info-item">
+          <div class="accountbranch-item">
             <span class="label">Drawing Power&nbsp;</span>
             <span class="value">{{drawingPower}}</span>
           </div>
 
-          <div class="info-item">
+          <div class="intinfo-item">
             <span class="label">Interest Rate (% p.a.)&nbsp;</span>
             <span class="value">{{interestRate}}</span>
           </div>
 
-          <div class="info-item">
+          <div class="modinfo-item">
             <span class="label">MOD Balance&nbsp;</span>
             <span class="value">{{modBalance}}</span>
           </div>
@@ -326,6 +381,7 @@
       Account Statement from {{fromDate}} to {{toDate}}
     </div>
     <br />
+    <div class="page-gap">
     <table class="txn-table">
       <thead>
         <tr>
@@ -386,7 +442,7 @@
         {{/each}}
       </tbody>
     </table>
-
+    
     <div class="footer">
       Please do not share your ATM, Debit/Credit card number, PIN (Personal
       Identification Number) and OTP (One Time Password) with anyone over mail,
@@ -395,5 +451,6 @@
     <div class="footer">
       * This is a computer generated statement and does not require signature.
     </div>
+    </div>  
   </body>
 </html>

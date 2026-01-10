@@ -103,6 +103,7 @@ app.post("/api/kotak/statement", upload.none(), async (req, res) => {
   const pdfBuffer = await page.pdf({
     format: "A4",
     printBackground: true,
+    preferCSSPageSize: true,
   });
 
   await browser.close();
@@ -239,7 +240,7 @@ app.post("/api/sbi/statement", upload.none(), async (req, res) => {
     salaryrRefName
   };
 
-const logoPath = path.join(__dirname, "public/images/sbilogo.png");
+const logoPath = path.join(__dirname, "public/images/Untitled.png");
 const logoBase64 = fs.readFileSync(logoPath).toString("base64");
 
 data.logoBase64 = `data:image/png;base64,${logoBase64}`;
@@ -665,7 +666,7 @@ app.get("/download-pdf", async (req, res) => {
   await browser.close();
 
   // For metdat data update
-  const pdfDoc = await PDFDocument.load(pdfBuffer);
+  const pdfDoc = await PDFDocument.load(pdf);
 
   pdfDoc.setTitle("Account Statement");
   pdfDoc.setAuthor("State Bank of India");
